@@ -1,0 +1,16 @@
+{
+  "name": "f1-championship",
+  "version": "1.0.0",
+  "description": "Plataforma de gerenciamento de competição Fórmula 1",
+  "scripts": {
+    "install-backend": "cd backend && npm install",
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mysql2": "^3.22.5"
+  }
+}
