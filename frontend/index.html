@@ -27,7 +27,7 @@
 <!-- ===== LOADER ===== -->
 <div class="f1-loader" id="loader">
   <div class="loader-logo">F1</div>
-  <div style="font-family:'Exo 2',sans-serif;font-size:0.75rem;letter-spacing:4px;color:#666;text-transform:uppercase;margin-top:0.75rem">Championship</div>
+  <div class="loader-text">Championship</div>
   <div class="loader-bar"><div class="loader-bar-fill"></div></div>
 </div>
 
@@ -88,7 +88,7 @@
         F1 <span>CHAMPIONSHIP</span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
-        style="border-color:var(--f1-border);color:var(--f1-white)">
+              class="navbar-toggler" title="Toggle navigation"></button>
         <i class="fas fa-bars"></i>
       </button>
       <div class="collapse navbar-collapse" id="navMenu">
@@ -107,7 +107,7 @@
               style="font-size:0.75rem;padding:6px 12px;width:200px"
               value="http://localhost:3001">
           </div>
-          <button class="btn-f1-outline" style="padding:6px 10px;font-size:0.75rem" onclick="updateApiUrl()">
+          <button class="btn-f1-outline" class="btn-f1-outline" title="Update API URL" onclick="updateApiUrl()"></button>
             <i class="fas fa-plug"></i>
           </button>
         </div>
@@ -287,7 +287,7 @@
 
             <div class="mb-3">
               <label class="form-label">Piloto</label>
-              <select id="timerPilot" class="form-select f1-input">
+              <select id="timerPilot" class="form-select f1-input" title="Selecione um piloto" aria-label="Piloto para cronômetro" aria-labelledby="timerPilotLabel">
                 <option value="">Selecione um piloto...</option>
               </select>
             </div>
@@ -295,15 +295,15 @@
             <div class="timer-display" id="timerDisplay">00.000</div>
 
             <div class="d-flex gap-2 mb-3">
-              <button class="btn-f1 flex-grow-1" id="timerBtn" onclick="CronometragemModule.toggleTimer()">
+              <button class="btn-f1 flex-grow-1" id="timerBtn" onclick="CronometragemModule.toggleTimer()" title="Iniciar cronômetro">
                 <i class="fas fa-play me-2"></i>INICIAR
               </button>
-              <button class="btn-f1-outline" onclick="CronometragemModule.resetTimer()">
+              <button class="btn-f1-outline" onclick="CronometragemModule.resetTimer()" title="Reiniciar cronômetro">
                 <i class="fas fa-redo"></i>
               </button>
             </div>
 
-            <button class="btn-f1 w-100" id="registerVoltaBtn" disabled onclick="CronometragemModule.registrarVolta()" style="background:var(--f1-red)">
+            <button class="btn-f1 w-100" id="registerVoltaBtn" disabled onclick="CronometragemModule.registrarVolta()" title="Registrar volta"></button>
               <i class="fas fa-flag-checkered me-2"></i>REGISTRAR VOLTA
             </button>
           </div>
@@ -313,7 +313,7 @@
             <div class="f1-card-header"><i class="fas fa-keyboard"></i>Inserção Manual</div>
             <div class="mb-3">
               <label class="form-label">Piloto</label>
-              <select id="manualPilot" class="form-select f1-input">
+              <select id="manualPilot" class="form-select f1-input" aria-label="Piloto para inserção manual" aria-labelledby="manualPilotLabel">
                 <option value="">Selecione um piloto...</option>
               </select>
             </div>
@@ -339,13 +339,13 @@
             <div class="f1-card-header"><i class="fas fa-history"></i>Histórico de Voltas</div>
             <div class="mb-3">
               <label class="form-label">Selecione o Piloto</label>
-              <select id="histPilot" class="form-select f1-input" onchange="CronometragemModule.carregarHistorico(this.value)">
+              <select id="histPilot" class="form-select f1-input" onchange="CronometragemModule.carregarHistorico(this.value)" aria-labelledby="histPilotLabel" title="Selecione um piloto para ver o histórico"></select>
                 <option value="">Selecione um piloto...</option>
               </select>
             </div>
             <div id="voltasStats"></div>
             <div id="voltasHistorico">
-              <div class="empty-state" style="padding:2rem">
+              <div class="empty-state padding-2rem"></div>
                 <i class="fas fa-flag-checkered"></i>
                 <p>Selecione um piloto para ver o histórico</p>
               </div>
@@ -424,7 +424,7 @@
           <table class="f1-table">
             <thead>
               <tr>
-                <th style="text-align:center">POS</th>
+                <th class="text-center">POS</th>
                 <th>PILOTO</th>
                 <th>EQUIPE</th>
                 <th>MELHOR VOLTA</th>
