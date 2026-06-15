@@ -280,78 +280,96 @@
       <div class="section-title mb-4"><i class="fas fa-stopwatch text-red"></i>Cronometragem</div>
 
       <div class="row g-4">
-        <!-- Timer ao vivo -->
-        <div class="col-lg-5">
-          <div class="f1-card">
-            <div class="f1-card-header"><i class="fas fa-clock"></i>Cronômetro ao Vivo</div>
+
+        <!-- 🔴 CRONÔMETRO (FULL WIDTH) -->
+        <div class="col-12">
+          <div class="f1-card timer-big">
+            <div class="f1-card-header">
+              <i class="fas fa-clock"></i>Cronômetro ao Vivo
+            </div>
 
             <div class="mb-3">
               <label class="form-label">Piloto</label>
-              <select id="timerPilot" class="form-select f1-input" title="Selecione um piloto" aria-label="Piloto para cronômetro" aria-labelledby="timerPilotLabel">
+              <select id="timerPilot" class="form-select f1-input">
                 <option value="">Selecione um piloto...</option>
               </select>
             </div>
 
-            <div class="timer-display" id="timerDisplay">00.000</div>
+            <div class="timer-display big" id="timerDisplay">00:00.000</div>
 
-            <div class="d-flex gap-2 mb-3">
-              <button class="btn-f1 flex-grow-1" id="timerBtn" onclick="CronometragemModule.toggleTimer()" title="Iniciar cronômetro">
+            <div class="d-flex justify-content-center gap-3 mt-4">
+              <button class="btn-f1 px-5" id="timerBtn" onclick="CronometragemModule.toggleTimer()">
                 <i class="fas fa-play me-2"></i>INICIAR
               </button>
-              <button class="btn-f1-outline" onclick="CronometragemModule.resetTimer()" title="Reiniciar cronômetro">
+              <button class="btn-f1-outline px-4" onclick="CronometragemModule.resetTimer()">
                 <i class="fas fa-redo"></i>
               </button>
             </div>
 
-            <button class="btn-f1 w-100" id="registerVoltaBtn" disabled onclick="CronometragemModule.registrarVolta()" title="Registrar volta"></button>
+            <button class="btn-f1 w-100 mt-4" id="registerVoltaBtn" disabled onclick="CronometragemModule.registrarVolta()">
               <i class="fas fa-flag-checkered me-2"></i>REGISTRAR VOLTA
             </button>
           </div>
+        </div>
 
-          <!-- Inserção Manual -->
-          <div class="f1-card mt-3">
-            <div class="f1-card-header"><i class="fas fa-keyboard"></i>Inserção Manual</div>
+        <!-- 🔽 LINHA DE BAIXO -->
+        <div class="col-lg-6">
+          <!-- INSERÇÃO -->
+          <div class="f1-card">
+            <div class="f1-card-header">
+              <i class="fas fa-keyboard"></i>Inserção Manual
+            </div>
+
             <div class="mb-3">
               <label class="form-label">Piloto</label>
-              <select id="manualPilot" class="form-select f1-input" aria-label="Piloto para inserção manual" aria-labelledby="manualPilotLabel">
+              <select id="manualPilot" class="form-select f1-input">
                 <option value="">Selecione um piloto...</option>
               </select>
             </div>
+
             <div class="row g-2 mb-3">
               <div class="col-6">
                 <label class="form-label">Minutos</label>
-                <input type="number" id="manualMin" class="form-control f1-input" placeholder="0" min="0">
+                <input type="number" id="manualMin" class="form-control f1-input">
               </div>
               <div class="col-6">
                 <label class="form-label">Segundos</label>
-                <input type="number" id="manualSeg" class="form-control f1-input" placeholder="0.000" min="0" step="0.001">
+                <input type="number" id="manualSeg" class="form-control f1-input" step="0.001">
               </div>
             </div>
+
             <button class="btn-f1 w-100" id="manualSaveBtn" onclick="CronometragemModule.registrarManual()">
-              <i class="fas fa-save me-2"></i>SALVAR TEMPO MANUAL
+              <i class="fas fa-save me-2"></i>SALVAR TEMPO
             </button>
           </div>
         </div>
 
-        <!-- Histórico -->
-        <div class="col-lg-7">
-          <div class="f1-card">
-            <div class="f1-card-header"><i class="fas fa-history"></i>Histórico de Voltas</div>
+        <!-- HISTÓRICO -->
+        <div class="col-lg-6">
+          <div class="f1-card historico-card">
+            <div class="f1-card-header">
+              <i class="fas fa-history"></i>Histórico de Voltas
+            </div>
+
             <div class="mb-3">
               <label class="form-label">Selecione o Piloto</label>
-              <select id="histPilot" class="form-select f1-input" onchange="CronometragemModule.carregarHistorico(this.value)" aria-labelledby="histPilotLabel" title="Selecione um piloto para ver o histórico"></select>
+              <select id="histPilot" class="form-select f1-input"
+                onchange="CronometragemModule.carregarHistorico(this.value)">
                 <option value="">Selecione um piloto...</option>
               </select>
             </div>
+
             <div id="voltasStats"></div>
-            <div id="voltasHistorico">
-              <div class="empty-state padding-2rem"></div>
+
+            <div id="voltasHistorico" class="historico-scroll">
+              <div class="empty-state">
                 <i class="fas fa-flag-checkered"></i>
-                <p>Selecione um piloto para ver o histórico</p>
+                <p>Selecione um piloto</p>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>

@@ -677,3 +677,49 @@ body:has(button:hover) .cursor {
   .cursor, .cursor-trail { display: none; }
   body { cursor: auto; }
 }
+
+
+/* 🔥 CRONÔMETRO GRANDE */
+.timer-big {
+  padding: 2.5rem;
+}
+
+.timer-display.big {
+  font-size: 6rem;
+  padding: 3rem;
+  letter-spacing: 8px;
+  border-radius: 14px;
+}
+
+/* centralizar bonito */
+.timer-big .timer-display {
+  margin-top: 1rem;
+}
+
+/* BOTÕES DO TIMER */
+.timer-big .btn-f1 {
+  font-size: 1rem;
+  padding: 14px 40px;
+}
+
+/* 🔽 CARDS DE BAIXO */
+.historico-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* SCROLL DO HISTÓRICO */
+.historico-scroll {
+  max-height: 350px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .timer-display.big {
+    font-size: 3rem;
+    padding: 1.5rem;
+  }
+}
