@@ -1237,7 +1237,7 @@
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg f1-navbar">
       <div class="container">
-        <a class="navbar-brand" href="#" onclick="navigate('home')">
+        <a class="navbar-brand" href="#home" onclick="navigateTo('home'); return false">
           <i class="fas fa-flag-checkered" style="color:var(--f1-red)"></i>
           F1 <span>CHAMPIONSHIP</span>
         </a>
@@ -1247,26 +1247,25 @@
         </button>
         <div class="collapse navbar-collapse" id="navMenu">
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link active" href="#" data-page="home"
-                onclick="navigate('home');return false"><i class="fas fa-home me-1"></i>Início</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-page="competidores"
+            <li class="nav-item"><a class="nav-link active" href="#home" data-page="home"
+                onclick="navigateTo('home');return false"><i class="fas fa-home me-1"></i>Início</a></li>
+            <li class="nav-item"><a class="nav-link" href="#competidores" data-page="competidores"
                 onclick="navigateTo('competidores');return false"><i class="fas fa-users me-1"></i>Pilotos</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-page="cronometragem"
+            <li class="nav-item"><a class="nav-link" href="#cronometragem" data-page="cronometragem"
                 onclick="navigateTo('cronometragem');return false"><i class="fas fa-stopwatch me-1"></i>Cronometro</a>
             </li>
-            <li class="nav-item"><a class="nav-link" href="#" data-page="grid"
+            <li class="nav-item"><a class="nav-link" href="#grid" data-page="grid"
                 onclick="navigateTo('grid');return false"><i class="fas fa-th-list me-1"></i>Grid</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-page="ranking"
+            <li class="nav-item"><a class="nav-link" href="#ranking" data-page="ranking"
                 onclick="navigateTo('ranking');return false"><i class="fas fa-trophy me-1"></i>Ranking</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-page="tabela"
+            <li class="nav-item"><a class="nav-link" href="#tabela" data-page="tabela"
                 onclick="navigateTo('tabela');return false"><i class="fas fa-chart-line me-1"></i>Tabela</a></li>
           </ul>
           <!-- Config de API URL -->
           <div class="ms-3 d-none d-lg-flex align-items-center gap-2">
-            <div style="position:relative">
-              <input type="text" id="apiUrlInput" class="form-control f1-input" placeholder="http://localhost:3001"
-                style="font-size:0.75rem;padding:6px 12px;width:200px" value="http://localhost:3001">
-            </div>
+            <input id="apiUrlInput" type="text" class="form-control f1-input"
+              style="min-width:240px; background: rgba(255,255,255,0.05); border-color: rgba(225,6,0,0.2); color: #fff;"
+              placeholder="http://localhost:3000">
             <button class="btn-f1-outline" title="Update API URL" onclick="updateApiUrl()">
               <i class="fas fa-plug"></i>
             </button>
@@ -1788,7 +1787,7 @@
     // API MODULE
     // ============================================
     const API = {
-      baseUrl: () => localStorage.getItem('f1_api_url') || 'http://localhost:3001',
+baseUrl: () => localStorage.getItem('f1_api_url') || 'http://localhost:3000',
 
       async request(endpoint, options = {}) {
         const url = `${this.baseUrl()}${endpoint}`;
@@ -1805,28 +1804,28 @@
       },
 
       competidores: {
-        listar: () => API.request('/api/competidores'),
-        criar: (data) => API.request('/api/competidores', { method: 'POST', body: JSON.stringify(data) }),
-        atualizar: (id, data) => API.request(`/api/competidores/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-        deletar: (id) => API.request(`/api/competidores/${id}`, { method: 'DELETE' })
+listar: () => API.request('/competidores'),
+criar: (data) => API.request('/competidores', { method: 'POST', body: JSON.stringify(data) }),
+atualizar: (id, data) => API.request(`/competidores/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+deletar: (id) => API.request(`/competidores/${id}`, { method: 'DELETE' })
       },
 
       voltas: {
         listar: (params = {}) => {
           const query = new URLSearchParams(params).toString();
-          return API.request(`/api/voltas${query ? '?' + query : ''}`);
+return API.request(`/voltas${query ? '?' + query : ''}`);
         },
-        criar: (data) => API.request('/api/voltas', { method: 'POST', body: JSON.stringify(data) }),
-        deletar: (id) => API.request(`/api/voltas/${id}`, { method: 'DELETE' })
+criar: (data) => API.request('/voltas', { method: 'POST', body: JSON.stringify(data) }),
+deletar: (id) => API.request(`/voltas/${id}`, { method: 'DELETE' })
       },
 
       grid: {
-        get: () => API.request('/api/grid'),
-        salvar: (data) => API.request('/api/grid', { method: 'POST', body: JSON.stringify(data) })
+get: () => API.request('/grid'),
+salvar: (data) => API.request('/grid', { method: 'POST', body: JSON.stringify(data) })
       },
 
       ranking: {
-        get: () => API.request('/api/ranking')
+get: () => API.request('/ranking')
       }
     };
 
@@ -1840,25 +1839,24 @@
       return `${String(mins).padStart(2, '0')}:${String(secs).padStart(6, '0')}`;
     }
 
-    function animateCounter(element, target) {
-      if (!element) return;
-      const duration = 800;
-      const start = 0;
-      const startTime = performance.now();
-
-      function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const current = Math.floor(progress * target);
-        element.textContent = current;
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        } else {
-          element.textContent = target;
-        }
+    // Parser tolerante de tempo: aceita "MM:SS.sss", "MM:SS,sss", "SS.sss", número
+    function parseTimeFlexible(value) {
+      if (value === null || value === undefined || value === '') return 0;
+      if (typeof value === 'number' && !isNaN(value)) return value;
+      let s = String(value).trim();
+      if (!s) return 0;
+      // aceita vírgula decimal
+      s = s.replace(',', '.');
+      // formatos "MM:SS.sss" ou "M:SS"
+      if (s.includes(':')) {
+        const parts = s.split(':').map(p => p.trim());
+        const mins = parseFloat(parts[0]) || 0;
+        const secs = parseFloat(parts[1]) || 0;
+        return mins * 60 + secs;
       }
-
-      requestAnimationFrame(update);
+      // se for apenas segundos (ou já número)
+      const num = parseFloat(s);
+      return isNaN(num) ? 0 : num;
     }
 
     // Toast System
@@ -1901,877 +1899,18 @@
       });
     }
 
-    // Navegação
-    function navigate(pageId) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-
-      const page = document.getElementById(pageId);
-      if (page) page.classList.add('active');
-
-      const navLink = document.querySelector(`[data-page="${pageId}"]`);
-      if (navLink) navLink.classList.add('active');
-
-      localStorage.setItem('f1_current_page', pageId);
-    }
-
-    // ============================================
-    // MÓDULO: COMPETIDORES
-    // ============================================
-    const CompetidoresModule = {
-      competidores: [],
-      editingId: null,
-
-      async carregar() {
-        try {
-          const res = await API.competidores.listar();
-          this.competidores = res.data;
-          this.renderizar();
-        } catch (err) {
-          Toast.show('Erro ao carregar pilotos', 'error');
-        }
-      },
-
-      renderizar(filtro = '') {
-        const container = document.getElementById('competidoresList');
-        const filtrados = this.competidores.filter(c =>
-          c.nome.toLowerCase().includes(filtro.toLowerCase()) ||
-          c.equipe.toLowerCase().includes(filtro.toLowerCase())
-        );
-
-        document.getElementById('totalPilotosCount').textContent = filtrados.length;
-
-        if (!filtrados.length) {
-          container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum piloto encontrado</p></div>';
-          return;
-        }
-
-        container.innerHTML = filtrados.map(c => `
-      <div class="pilot-card mb-2">
-        <div class="pilot-number">#${c.numero || '?'}</div>
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <div class="pilot-name">${c.nome}</div>
-            <div class="pilot-team">${c.equipe}</div>
-            ${c.nacionalidade ? `<div style="font-size:0.7rem;color:var(--f1-silver);margin-top:2px">${c.nacionalidade}</div>` : ''}
-          </div>
-          <div class="d-flex gap-2">
-            <button class="btn-f1-outline btn-sm" onclick="CompetidoresModule.editPilot(${c.id})" title="Editar" style="padding:4px 10px">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-danger-f1 btn-sm" onclick="CompetidoresModule.remover(${c.id})" title="Remover" style="padding:4px 10px">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    `).join('');
-      },
-
-      onSearch(value) {
-        this.renderizar(value);
-      },
-
-      showForm(pilot = null) {
-        document.getElementById('pilotModal').classList.add('show');
-        document.getElementById('pilotModalTitle').textContent = pilot ? 'EDITAR PILOTO' : 'NOVO PILOTO';
-        document.getElementById('pilotNome').value = pilot ? pilot.nome : '';
-        document.getElementById('pilotEquipe').value = pilot ? pilot.equipe : '';
-        document.getElementById('pilotNumero').value = pilot ? pilot.numero : '';
-        document.getElementById('pilotNac').value = pilot ? (pilot.nacionalidade || '') : '';
-        this.editingId = pilot ? pilot.id : null;
-      },
-
-      hideForm() {
-        document.getElementById('pilotModal').classList.remove('show');
-        this.editingId = null;
-      },
-
-      async salvar() {
-        const nome = document.getElementById('pilotNome').value.trim();
-        const equipe = document.getElementById('pilotEquipe').value.trim();
-        const numero = document.getElementById('pilotNumero').value;
-        const nacionalidade = document.getElementById('pilotNac').value.trim();
-
-        if (!nome || !equipe || !numero) {
-          Toast.show('Preencha todos os campos obrigatórios', 'error');
-          return;
-        }
-
-        const data = { nome, equipe, numero: parseInt(numero), nacionalidade };
-
-        try {
-          if (this.editingId) {
-            await API.competidores.atualizar(this.editingId, data);
-            Toast.show('Piloto atualizado com sucesso!', 'success');
-          } else {
-            await API.competidores.criar(data);
-            Toast.show('Piloto cadastrado com sucesso!', 'success');
-          }
-          this.hideForm();
-          await this.carregar();
-        } catch (err) {
-          Toast.show(err.message, 'error');
-        }
-      },
-
-      editPilot(id) {
-        const pilot = this.competidores.find(c => c.id === id);
-        if (pilot) this.showForm(pilot);
-      },
-
-      async remover(id) {
-        const confirmed = await showConfirm('Confirmar Remoção', 'Tem certeza que deseja remover este piloto?');
-        if (confirmed) {
-          try {
-            await API.competidores.deletar(id);
-            Toast.show('Piloto removido com sucesso!', 'success');
-            await this.carregar();
-          } catch (err) {
-            Toast.show(err.message, 'error');
-          }
-        }
-      }
-    };
-
-    // ============================================
-    // MÓDULO: CRONOMETRAGEM
-    // ============================================
-    const CronometragemModule = {
-      timerInterval: null,
-      timerRunning: false,
-      startTime: 0,
-      elapsedTime: 0,
-
-      async init() {
-        try {
-          const res = await API.competidores.listar();
-          const select1 = document.getElementById('timerPilot');
-          const select2 = document.getElementById('manualPilot');
-
-          const options = res.data.map(c => `<option value="${c.id}">${c.nome} - ${c.equipe}</option>`).join('');
-
-          if (select1) select1.innerHTML = '<option value="">Selecione um piloto...</option>' + options;
-          if (select2) select2.innerHTML = '<option value="">Selecione um piloto...</option>' + options;
-        } catch (err) {
-          console.warn('Erro ao carregar pilotos para cronômetro:', err.message);
-        }
-      },
-
-      toggleTimer() {
-        if (this.timerRunning) {
-          this.stopTimer();
-        } else {
-          this.startTimer();
-        }
-      },
-
-      startTimer() {
-        const pilotoId = document.getElementById('timerPilot').value;
-        if (!pilotoId) {
-          Toast.show('Selecione um piloto primeiro', 'error');
-          return;
-        }
-
-        this.timerRunning = true;
-        this.startTime = Date.now() - this.elapsedTime;
-
-        const btn = document.getElementById('timerBtn');
-        btn.innerHTML = '<i class="fas fa-pause me-2"></i>PAUSAR';
-        btn.style.background = '#ff4444';
-
-        document.getElementById('registerVoltaBtn').disabled = false;
-
-        this.timerInterval = setInterval(() => {
-          this.elapsedTime = Date.now() - this.startTime;
-          this.atualizarDisplay();
-        }, 10);
-      },
-
-      stopTimer() {
-        this.timerRunning = false;
-        clearInterval(this.timerInterval);
-
-        const btn = document.getElementById('timerBtn');
-        btn.innerHTML = '<i class="fas fa-play me-2"></i>INICIAR';
-        btn.style.background = '';
-      },
-
-      resetTimer() {
-        this.stopTimer();
-        this.elapsedTime = 0;
-        this.startTime = 0;
-        this.atualizarDisplay();
-        document.getElementById('registerVoltaBtn').disabled = true;
-      },
-
-      atualizarDisplay() {
-        const totalMs = this.elapsedTime;
-        const mins = Math.floor(totalMs / 60000);
-        const secs = Math.floor((totalMs % 60000) / 1000);
-        const ms = totalMs % 1000;
-
-        document.getElementById('timerDisplay').textContent =
-          `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
-      },
-
-      async registrarVolta() {
-        const pilotoId = document.getElementById('timerPilot').value;
-        if (!pilotoId) {
-          Toast.show('Selecione um piloto', 'error');
-          return;
-        }
-
-        const tempoSegundos = this.elapsedTime / 1000;
-        const tempoFormatado = formatTime(tempoSegundos);
-
-        try {
-          await API.voltas.criar({
-            piloto_id: parseInt(pilotoId),
-            tempo: tempoFormatado,
-            pista: 'Circuito de Demonstração'
-          });
-
-          Toast.show(`Volta registrada: ${tempoFormatado}`, 'success');
-          this.resetTimer();
-        } catch (err) {
-          Toast.show(err.message, 'error');
-        }
-      },
-
-      async registrarManual() {
-        const pilotoId = document.getElementById('manualPilot').value;
-        const mins = parseInt(document.getElementById('manualMin').value) || 0;
-        const segs = parseFloat(document.getElementById('manualSeg').value) || 0;
-
-        if (!pilotoId) {
-          Toast.show('Selecione um piloto', 'error');
-          return;
-        }
-
-        const tempoTotal = mins * 60 + segs;
-        const tempoFormatado = formatTime(tempoTotal);
-
-        try {
-          await API.voltas.criar({
-            piloto_id: parseInt(pilotoId),
-            tempo: tempoFormatado,
-            pista: 'Circuito de Demonstração'
-          });
-
-          Toast.show(`Tempo registrado: ${tempoFormatado}`, 'success');
-          document.getElementById('manualMin').value = '';
-          document.getElementById('manualSeg').value = '';
-        } catch (err) {
-          Toast.show(err.message, 'error');
-        }
-      },
-
-      async initHistorico() {
-        try {
-          const res = await API.competidores.listar();
-          const select = document.getElementById('histPilot');
-          if (select) {
-            select.innerHTML = '<option value="">Selecione um piloto...</option>' +
-              res.data.map(c => `<option value="${c.id}">${c.nome} - ${c.equipe}</option>`).join('');
-          }
-        } catch (err) {
-          console.warn('Erro ao carregar histórico:', err.message);
-        }
-      },
-
-      async carregarHistorico(pilotoId) {
-        if (!pilotoId) {
-          document.getElementById('voltasHistorico').innerHTML = '<div class="empty-state"><i class="fas fa-flag-checkered"></i><p>Selecione um piloto</p></div>';
-          document.getElementById('voltasStats').innerHTML = '';
-          return;
-        }
-
-        try {
-          const res = await API.voltas.listar({ piloto_id: pilotoId });
-          const voltas = res.data.sort((a, b) => {
-            const timeA = this.parseTime(a.tempo);
-            const timeB = this.parseTime(b.tempo);
-            return timeA - timeB;
-          });
-
-          if (!voltas.length) {
-            document.getElementById('voltasHistorico').innerHTML = '<div class="empty-state"><i class="fas fa-flag-checkered"></i><p>Nenhuma volta registrada</p></div>';
-            document.getElementById('voltasStats').innerHTML = '';
-            return;
-          }
-
-          const melhorTempo = this.parseTime(voltas[0].tempo);
-
-          document.getElementById('voltasStats').innerHTML = `
-        <div class="row g-2 mb-3">
-          <div class="col-6">
-            <div class="timing-stat">
-              <div class="timing-stat-val">${voltas.length}</div>
-              <div class="timing-stat-lbl">Voltas</div>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="timing-stat">
-              <div class="timing-stat-val">${formatTime(melhorTempo)}</div>
-              <div class="timing-stat-lbl">Melhor Volta</div>
-            </div>
-          </div>
-        </div>
-      `;
-
-          document.getElementById('voltasHistorico').innerHTML = voltas.map((v, i) => `
-        <div class="volta-item">
-          <span>Volta ${i + 1}</span>
-          <span class="volta-time ${i === 0 ? 'volta-best' : ''}">${v.tempo}</span>
-          <span style="font-size:0.7rem;color:var(--f1-silver)">
-            ${v.created_at ? new Date(v.created_at).toLocaleDateString('pt-BR') : ''}
-          </span>
-        </div>
-      `).join('');
-
-        } catch (err) {
-          Toast.show('Erro ao carregar histórico', 'error');
-        }
-      },
-
-      parseTime(timeStr) {
-        if (!timeStr) return 0;
-        const parts = timeStr.split(':');
-        if (parts.length === 2) {
-          return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
-        }
-        return parseFloat(timeStr) || 0;
-      }
-    };
-
-    // ============================================
-    // MÓDULO: GRID & RANKING
-    // ============================================
-    const GridModule = {
-      grid: [],
-
-      async carregar() {
-        try {
-          const [gridRes, compRes] = await Promise.all([
-            API.grid.get(),
-            API.competidores.listar()
-          ]);
-
-          this.grid = gridRes.data && gridRes.data.length ? gridRes.data : compRes.data.map((c, i) => ({
-            piloto_id: c.id,
-            nome: c.nome,
-            equipe: c.equipe,
-            posicao: i + 1
-          }));
-
-          this.renderizar();
-        } catch (err) {
-          Toast.show('Erro ao carregar grid', 'error');
-        }
-      },
-
-      renderizar() {
-        const container = document.getElementById('gridContainer');
-        if (!this.grid.length) {
-          container.innerHTML = '<div class="empty-state"><i class="fas fa-th-list"></i><p>Nenhum piloto no grid</p></div>';
-          return;
-        }
-
-        container.innerHTML = `
-      <div class="grid-track">
-        <div class="grid-indicator mb-3">
-          ${[1, 2, 3, 4, 5].map(i => `<div class="grid-light ${i <= 3 ? 'on' : ''}"></div>`).join('')}
-        </div>
-        ${this.grid.map((p, i) => `
-          <div class="grid-row" draggable="true" data-index="${i}">
-            <div class="grid-pos">P${i + 1}</div>
-            <div class="flex-grow-1">
-              <div style="font-weight:700">${p.nome}</div>
-              <div style="font-size:0.75rem;color:var(--f1-silver)">${p.equipe}</div>
-            </div>
-            <i class="fas fa-grip-vertical" style="color:var(--f1-silver)"></i>
-          </div>
-        `).join('')}
-      </div>
-    `;
-
-        this.setupDragAndDrop();
-      },
-
-      setupDragAndDrop() {
-        const rows = document.querySelectorAll('.grid-row');
-
-        rows.forEach(row => {
-          row.addEventListener('dragstart', (e) => {
-            e.target.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', e.target.dataset.index);
-          });
-
-          row.addEventListener('dragend', (e) => {
-            e.target.classList.remove('dragging');
-            document.querySelectorAll('.grid-row').forEach(r => r.classList.remove('drag-over'));
-          });
-
-          row.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            e.target.closest('.grid-row').classList.add('drag-over');
-          });
-
-          row.addEventListener('dragleave', (e) => {
-            e.target.closest('.grid-row').classList.remove('drag-over');
-          });
-
-          row.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.target.closest('.grid-row').classList.remove('drag-over');
-
-            const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-            const toIndex = parseInt(e.target.closest('.grid-row').dataset.index);
-
-            if (fromIndex !== toIndex) {
-              const item = this.grid.splice(fromIndex, 1)[0];
-              this.grid.splice(toIndex, 0, item);
-              this.renderizar();
-            }
-          });
-        });
-      },
-
-      async salvar() {
-        try {
-          const data = this.grid.map((p, i) => ({
-            piloto_id: p.piloto_id,
-            posicao: i + 1
-          }));
-
-          await API.grid.salvar({ grid: data });
-          Toast.show('Grid salvo com sucesso!', 'success');
-        } catch (err) {
-          Toast.show(err.message, 'error');
-        }
-      }
-    };
-
-    const RankingModule = {
-      async carregar() {
-        try {
-          const res = await API.ranking.get();
-          const ranking = res.data;
-
-          if (ranking.length) {
-            document.getElementById('liderNome').textContent = ranking[0].nome;
-            document.getElementById('melhorVoltaGlobal').textContent = ranking[0].melhor_volta ? formatTime(ranking[0].melhor_volta) : '—';
-          }
-
-          const tbody = document.getElementById('rankingTable');
-
-          if (!ranking.length) {
-            tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-trophy"></i><p>Sem dados de ranking</p></div></td></tr>';
-            return;
-          }
-
-          tbody.innerHTML = ranking.map((p, i) => {
-            let posClass = 'pos-n';
-            if (i === 0) posClass = 'pos-1';
-            else if (i === 1) posClass = 'pos-2';
-            else if (i === 2) posClass = 'pos-3';
-
-            return `
-          <tr>
-            <td class="text-center"><div class="pos-medal ${posClass}">${i + 1}</div></td>
-            <td><strong>${p.nome}</strong></td>
-            <td><span class="team-badge">${p.equipe}</span></td>
-            <td><span class="volta-time">${p.melhor_volta ? formatTime(p.melhor_volta) : '—'}</span></td>
-            <td>${p.media_voltas ? formatTime(p.media_voltas) : '—'}</td>
-            <td>${p.total_voltas || 0}</td>
-          </tr>
-        `;
-          }).join('');
-
-        } catch (err) {
-          Toast.show('Erro ao carregar ranking', 'error');
-        }
-      }
-    };
-
-    // ============================================
-    // MÓDULO: TABELA (GRÁFICO DE VELOCIDADES)
-    // ============================================
-    const TabelaModule = {
-      chart: null,
-      dadosCompletos: [],
-
-      async init() {
-        await this.carregarPilotos();
-        await this.atualizarGrafico();
-      },
-
-      async carregarPilotos() {
-        try {
-          const response = await API.competidores.listar();
-          const select = document.getElementById('tabelaPilot');
-
-          select.innerHTML = '<option value="">Selecione um piloto...</option>';
-
-          response.data.forEach(piloto => {
-            select.innerHTML += `<option value="${piloto.id}">${piloto.nome} - ${piloto.equipe}</option>`;
-          });
-        } catch (error) {
-          console.error('Erro ao carregar pilotos:', error);
-          Toast.show('Erro ao carregar pilotos', 'error');
-        }
-      },
-
-      async atualizarGrafico() {
-        const pilotoId = document.getElementById('tabelaPilot').value;
-        const pistaSelecionada = document.getElementById('tabelaPista').value;
-
-        if (!pilotoId) {
-          this.limparDados();
-          return;
-        }
-
-        try {
-          const response = await API.voltas.listar({ piloto_id: pilotoId });
-          let voltas = response.data;
-
-          if (pistaSelecionada && pistaSelecionada !== 'todas') {
-            voltas = voltas.filter(v => v.pista === pistaSelecionada);
-          }
-
-          voltas.sort((a, b) => new Date(a.data_hora || a.created_at) - new Date(b.data_hora || b.created_at));
-
-          this.dadosCompletos = voltas.map((volta, index) => {
-            const tempoSegundos = this.converterTempoParaSegundos(volta.tempo);
-            const velocidade = this.calcularVelocidade(tempoSegundos);
-
-            return {
-              volta: index + 1,
-              tempo: volta.tempo,
-              tempoSegundos: tempoSegundos,
-              velocidade: velocidade,
-              pista: volta.pista || 'Circuito de Demonstração',
-              data: volta.data_hora || volta.created_at
-            };
-          });
-
-          this.renderizarGrafico();
-          this.atualizarEstatisticas();
-          this.atualizarTabela();
-
-        } catch (error) {
-          console.error('Erro ao carregar dados:', error);
-          Toast.show('Erro ao carregar dados do gráfico', 'error');
-        }
-      },
-
-      converterTempoParaSegundos(tempo) {
-        if (!tempo) return 0;
-
-        const partes = tempo.split(':');
-        if (partes.length === 2) {
-          const minutos = parseFloat(partes[0]);
-          const segundos = parseFloat(partes[1]);
-          return minutos * 60 + segundos;
-        }
-
-        return parseFloat(tempo) || 0;
-      },
-
-      calcularVelocidade(tempoSegundos) {
-        if (!tempoSegundos || tempoSegundos <= 0) return 0;
-
-        const comprimentoPista = 5; // km
-        const velocidadeMedia = (comprimentoPista / tempoSegundos) * 3600; // km/h
-        const variacao = (Math.random() * 20 - 10);
-        const velocidadeFinal = velocidadeMedia + variacao;
-
-        return Math.round(velocidadeFinal * 10) / 10;
-      },
-
-      renderizarGrafico() {
-        const ctx = document.getElementById('velocidadeChart').getContext('2d');
-
-        if (this.chart) {
-          this.chart.destroy();
-        }
-
-        if (this.dadosCompletos.length === 0) {
-          return;
-        }
-
-        const labels = this.dadosCompletos.map(d => `Volta ${d.volta}`);
-        const velocidades = this.dadosCompletos.map(d => d.velocidade);
-        const tempos = this.dadosCompletos.map(d => d.tempoSegundos);
-
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(225, 6, 0, 0.8)');
-        gradient.addColorStop(1, 'rgba(225, 6, 0, 0.1)');
-
-        this.chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                label: 'Velocidade (km/h)',
-                data: velocidades,
-                borderColor: '#E10600',
-                backgroundColor: gradient,
-                borderWidth: 3,
-                pointBackgroundColor: '#E10600',
-                pointBorderColor: '#FFFFFF',
-                pointBorderWidth: 2,
-                pointRadius: 5,
-                pointHoverRadius: 8,
-                tension: 0.4,
-                fill: true,
-                yAxisID: 'y'
-              },
-              {
-                label: 'Tempo (s)',
-                data: tempos,
-                borderColor: '#FFD700',
-                backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                borderWidth: 2,
-                borderDash: [5, 5],
-                pointBackgroundColor: '#FFD700',
-                pointBorderColor: '#000000',
-                pointBorderWidth: 1,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                tension: 0.4,
-                fill: false,
-                yAxisID: 'y1'
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-              mode: 'index',
-              intersect: false,
-            },
-            plugins: {
-              legend: {
-                display: true,
-                position: 'top',
-                labels: {
-                  color: '#b0b0c0',
-                  font: {
-                    family: "'Exo 2', sans-serif",
-                    size: 12
-                  },
-                  usePointStyle: true,
-                  padding: 20
-                }
-              },
-              tooltip: {
-                backgroundColor: 'rgba(30, 30, 46, 0.95)',
-                titleColor: '#E10600',
-                bodyColor: '#FFFFFF',
-                borderColor: '#E10600',
-                borderWidth: 1,
-                padding: 12,
-                displayColors: true,
-                callbacks: {
-                  label: function (context) {
-                    let label = context.dataset.label || '';
-                    if (label) {
-                      label += ': ';
-                    }
-                    if (context.datasetIndex === 0) {
-                      label += context.parsed.y.toFixed(1) + ' km/h';
-                    } else {
-                      label += context.parsed.y.toFixed(3) + ' s';
-                    }
-                    return label;
-                  }
-                }
-              }
-            },
-            scales: {
-              x: {
-                grid: {
-                  color: 'rgba(43, 43, 61, 0.3)',
-                  drawBorder: false
-                },
-                ticks: {
-                  color: '#b0b0c0',
-                  font: {
-                    family: "'Exo 2', sans-serif",
-                    size: 11
-                  }
-                }
-              },
-              y: {
-                type: 'linear',
-                display: true,
-                position: 'left',
-                title: {
-                  display: true,
-                  text: 'Velocidade (km/h)',
-                  color: '#E10600',
-                  font: {
-                    family: "'Exo 2', sans-serif",
-                    size: 12,
-                    weight: 'bold'
-                  }
-                },
-                grid: {
-                  color: 'rgba(225, 6, 0, 0.1)',
-                  drawBorder: false
-                },
-                ticks: {
-                  color: '#E10600',
-                  font: {
-                    family: "'Share Tech Mono', monospace",
-                    size: 11
-                  },
-                  callback: function (value) {
-                    return value.toFixed(1) + ' km/h';
-                  }
-                }
-              },
-              y1: {
-                type: 'linear',
-                display: true,
-                position: 'right',
-                title: {
-                  display: true,
-                  text: 'Tempo (s)',
-                  color: '#FFD700',
-                  font: {
-                    family: "'Exo 2', sans-serif",
-                    size: 12,
-                    weight: 'bold'
-                  }
-                },
-                grid: {
-                  drawOnChartArea: false,
-                },
-                ticks: {
-                  color: '#FFD700',
-                  font: {
-                    family: "'Share Tech Mono', monospace",
-                    size: 11
-                  },
-                  callback: function (value) {
-                    return value.toFixed(3) + ' s';
-                  }
-                }
-              }
-            }
-          }
-        });
-      },
-
-      atualizarEstatisticas() {
-        if (this.dadosCompletos.length === 0) {
-          document.getElementById('statVelocidadeMax').textContent = '—';
-          document.getElementById('statVelocidadeMedia').textContent = '—';
-          document.getElementById('statTotalVoltas').textContent = '—';
-          document.getElementById('statMelhorTempo').textContent = '—';
-          return;
-        }
-
-        const velocidades = this.dadosCompletos.map(d => d.velocidade);
-        const tempos = this.dadosCompletos.map(d => d.tempoSegundos);
-
-        const velocidadeMax = Math.max(...velocidades);
-        const velocidadeMedia = velocidades.reduce((a, b) => a + b, 0) / velocidades.length;
-        const totalVoltas = this.dadosCompletos.length;
-        const melhorTempo = Math.min(...tempos);
-
-        document.getElementById('statVelocidadeMax').textContent = velocidadeMax.toFixed(1) + ' km/h';
-        document.getElementById('statVelocidadeMedia').textContent = velocidadeMedia.toFixed(1) + ' km/h';
-        document.getElementById('statTotalVoltas').textContent = totalVoltas;
-        document.getElementById('statMelhorTempo').textContent = formatTime(melhorTempo);
-      },
-
-      atualizarTabela() {
-        const tbody = document.getElementById('tabelaDados');
-
-        if (this.dadosCompletos.length === 0) {
-          tbody.innerHTML = `
-        <tr>
-          <td colspan="5">
-            <div class="empty-state">
-              <i class="fas fa-chart-line"></i>
-              <p>Nenhum dado disponível para este piloto</p>
-            </div>
-          </td>
-        </tr>`;
-          return;
-        }
-
-        tbody.innerHTML = this.dadosCompletos.map(d => `
-      <tr>
-        <td class="text-center">
-          <span class="badge" style="background:rgba(225,6,0,0.2);color:var(--f1-red);font-family:var(--font-mono)">
-            #${d.volta}
-          </span>
-        </td>
-        <td>
-          <span class="volta-time">${d.tempo}</span>
-        </td>
-        <td>
-          <span style="font-family:var(--font-mono);color:var(--f1-gold)">${d.velocidade.toFixed(1)} km/h</span>
-        </td>
-        <td>
-          <span class="team-badge">${d.pista}</span>
-        </td>
-        <td>
-          <span style="color:var(--f1-silver);font-size:0.85rem">
-            ${new Date(d.data).toLocaleDateString('pt-BR')}
-          </span>
-        </td>
-      </tr>
-    `).join('');
-      },
-
-      limparDados() {
-        if (this.chart) {
-          this.chart.destroy();
-          this.chart = null;
-        }
-
-        this.dadosCompletos = [];
-
-        document.getElementById('statVelocidadeMax').textContent = '—';
-        document.getElementById('statVelocidadeMedia').textContent = '—';
-        document.getElementById('statTotalVoltas').textContent = '—';
-        document.getElementById('statMelhorTempo').textContent = '—';
-
-        document.getElementById('tabelaDados').innerHTML = `
-      <tr>
-        <td colspan="5">
-          <div class="empty-state">
-            <i class="fas fa-chart-line"></i>
-            <p>Selecione um piloto para visualizar os dados</p>
-          </div>
-        </td>
-      </tr>`;
-      }
-    };
-
-    // ============================================
-    // EFEITOS VISUAIS
-    // ============================================
+    // ===== Funções visuais faltantes (adicionadas) =====
     function initCursor() {
       const cursor = document.querySelector('.cursor');
       const trail = document.querySelector('.cursor-trail');
-
+      if (!cursor && !trail) return;
       document.addEventListener('mousemove', (e) => {
         if (cursor) {
           cursor.style.left = e.clientX + 'px';
           cursor.style.top = e.clientY + 'px';
         }
         if (trail) {
+          // pequeno delay para o "rastro"
           setTimeout(() => {
             trail.style.left = e.clientX + 'px';
             trail.style.top = e.clientY + 'px';
@@ -2783,26 +1922,28 @@
     function initParticles() {
       const canvas = document.getElementById('particles-canvas');
       if (!canvas) return;
-
       const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
 
       const particles = [];
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 60; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 2 + 1,
-          speedX: (Math.random() - 0.5) * 0.5,
-          speedY: (Math.random() - 0.5) * 0.5,
-          opacity: Math.random() * 0.5 + 0.1
+          size: Math.random() * 2 + 0.5,
+          speedX: (Math.random() - 0.5) * 0.6,
+          speedY: (Math.random() - 0.5) * 0.6,
+          opacity: Math.random() * 0.6 + 0.05
         });
       }
 
       function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         particles.forEach(p => {
           p.x += p.speedX;
           p.y += p.speedY;
@@ -2822,29 +1963,23 @@
       }
 
       animate();
-
-      window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      });
+      window.addEventListener('resize', resize);
     }
 
     function initSpeedLines() {
       const container = document.querySelector('.speed-lines');
       if (!container) return;
-
       setInterval(() => {
         const line = document.createElement('div');
         line.className = 'speed-line';
         line.style.top = Math.random() * 100 + '%';
         line.style.animationDuration = (Math.random() * 2 + 2) + 's';
         line.style.width = (Math.random() * 300 + 100) + 'px';
-
         container.appendChild(line);
-
+        // remover após animação
         setTimeout(() => {
-          line.remove();
-        }, 3000);
+          if (line.parentNode) line.remove();
+        }, 4000);
       }, 200);
     }
 
@@ -2857,7 +1992,13 @@
         const now = new Date();
         const diff = targetDate - now;
 
-        if (diff <= 0) return;
+        if (diff <= 0) {
+          document.getElementById('cd-days').textContent = '00';
+          document.getElementById('cd-hours').textContent = '00';
+          document.getElementById('cd-mins').textContent = '00';
+          document.getElementById('cd-secs').textContent = '00';
+          return;
+        }
 
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -2874,11 +2015,38 @@
       setInterval(update, 1000);
     }
 
-    // ============================================
-    // INICIALIZAÇÃO PRINCIPAL
-    // ============================================
-    async function navigateTo(pageId) {
+    // Navegação
+    function navigate(pageId) {
+      pageId = resolvePage(pageId);
+
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+      const page = document.getElementById(pageId);
+      if (page) page.classList.add('active');
+
+      const navLink = document.querySelector(`[data-page="${pageId}"]`);
+      if (navLink) navLink.classList.add('active');
+
+      localStorage.setItem('f1_current_page', pageId);
+    }
+
+    const validPages = ['home', 'competidores', 'cronometragem', 'grid', 'ranking', 'tabela'];
+
+    function resolvePage(pageId) {
+      return validPages.includes(pageId) ? pageId : 'home';
+    }
+
+    async function navigateTo(pageId, updateHash = true) {
+      pageId = resolvePage(pageId);
+
+      if (updateHash && location.hash.slice(1) !== pageId) {
+        location.hash = pageId;
+        return;
+      }
+
       navigate(pageId);
+
       switch (pageId) {
         case 'competidores':
           await CompetidoresModule.carregar();
@@ -2902,66 +2070,23 @@
       }
     }
 
-    async function carregarHome() {
-      try {
-        const [compRes, voltasRes, rankingRes] = await Promise.all([
-          API.competidores.listar(),
-          API.voltas.listar(),
-          API.ranking.get()
-        ]);
-
-        const stats = document.getElementById('statPilotos');
-        if (stats) animateCounter(stats, compRes.data.length);
-
-        const voltasStat = document.getElementById('statVoltas');
-        if (voltasStat) animateCounter(voltasStat, voltasRes.data.length);
-
-        const equipes = new Set(compRes.data.map(c => c.equipe));
-        const equipesStat = document.getElementById('statEquipes');
-        if (equipesStat) animateCounter(equipesStat, equipes.size);
-
-        if (rankingRes.data.length && rankingRes.data[0].melhor_volta) {
-          const el = document.getElementById('statMelhorVolta');
-          if (el) el.textContent = formatTime(rankingRes.data[0].melhor_volta);
-        }
-
-        const top3 = rankingRes.data.slice(0, 3);
-        const top3El = document.getElementById('homeTop3');
-        if (!top3.length) {
-          top3El.innerHTML = '<div class="empty-state" style="padding:1rem"><i class="fas fa-trophy"></i><p>Sem dados ainda</p></div>';
-        } else {
-          const medals = ['🥇', '🥈', '🥉'];
-          const medalColors = ['var(--f1-gold)', 'var(--f1-silver-medal)', 'var(--f1-bronze)'];
-          top3El.innerHTML = top3.map((p, i) => `
-        <div class="d-flex align-items-center gap-3 py-2 ${i < 2 ? 'border-bottom' : ''}" style="border-color:var(--f1-border)!important">
-          <span style="font-size:1.6rem;width:36px;text-align:center">${medals[i]}</span>
-          <div class="flex-grow-1">
-            <div style="font-weight:700">${p.nome}</div>
-            <div style="font-size:0.75rem;color:var(--f1-silver)">${p.equipe}</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-family:var(--font-mono);color:${medalColors[i]}">${p.melhor_volta ? formatTime(p.melhor_volta) : '—'}</div>
-            <div style="font-size:0.65rem;color:var(--f1-silver);letter-spacing:1px">MELHOR VOLTA</div>
-          </div>
-        </div>
-      `).join('');
-        }
-
-      } catch (err) {
-        console.warn('Home load error:', err.message);
-      }
-    }
-
     function updateApiUrl() {
-      const url = document.getElementById('apiUrlInput').value.trim();
+      const input = document.getElementById('apiUrlInput');
+      if (!input) return;
+      const url = input.value.trim();
       if (url) {
         localStorage.setItem('f1_api_url', url);
         window.location.reload();
       }
     }
 
-    // Inicialização ao carregar
+    window.addEventListener('hashchange', () => {
+      const page = resolvePage(location.hash.slice(1));
+      navigateTo(page, false);
+    });
+
     window.addEventListener('DOMContentLoaded', async () => {
+      // inicialização principal (permanece)
       initCursor();
       initParticles();
       initSpeedLines();
@@ -2975,13 +2100,623 @@
         document.getElementById('loader').classList.add('hidden');
       }, 1800);
 
-      const savedPage = localStorage.getItem('f1_current_page') || 'home';
+      const savedPage = resolvePage(location.hash.slice(1) || localStorage.getItem('f1_current_page') || 'home');
       setTimeout(async () => {
-        navigate(savedPage);
-        if (savedPage !== 'home') navigate('home');
-        await carregarHome();
+        await navigateTo(savedPage, false);
       }, 1900);
     });
+
+    /* -------------------------
+       MÓDULO: COMPETIDORES
+       ------------------------- */
+const CompetidoresModule = {
+  competidores: [],
+  editingId: null,
+
+  async carregar() {
+    try {
+      const res = await API.competidores.listar();
+      this.competidores = res.data || [];
+      this.renderizar();
+    } catch (err) {
+      Toast.show('Erro ao carregar pilotos', 'error');
+    }
+  },
+
+  renderizar(filtro = '') {
+    const container = document.getElementById('competidoresList');
+    const filtrados = this.competidores.filter(c =>
+      (c.nome || '').toLowerCase().includes(filtro.toLowerCase()) ||
+      (c.equipe || '').toLowerCase().includes(filtro.toLowerCase())
+    );
+
+    document.getElementById('totalPilotosCount').textContent = filtrados.length;
+
+    if (!filtrados.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum piloto encontrado</p></div>';
+      return;
+    }
+
+    container.innerHTML = filtrados.map(c => `
+      <div class="pilot-card mb-2">
+        <div class="pilot-number">#${c.numero ?? '?'}</div>
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="pilot-name">${c.nome}</div>
+            <div class="pilot-team">${c.equipe}</div>
+            ${c.nacionalidade ? `<div style="font-size:0.7rem;color:var(--f1-silver);margin-top:2px">${c.nacionalidade}</div>` : ''}
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn-f1-outline btn-sm" onclick="CompetidoresModule.editPilot(${c.id})" title="Editar" style="padding:4px 10px">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-danger-f1 btn-sm" onclick="CompetidoresModule.remover(${c.id})" title="Remover" style="padding:4px 10px">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  onSearch(value) { this.renderizar(value); },
+
+  showForm(pilot = null) {
+    document.getElementById('pilotModal').classList.add('show');
+    document.getElementById('pilotModalTitle').textContent = pilot ? 'EDITAR PILOTO' : 'NOVO PILOTO';
+    document.getElementById('pilotNome').value = pilot ? pilot.nome : '';
+    document.getElementById('pilotEquipe').value = pilot ? pilot.equipe : '';
+    document.getElementById('pilotNumero').value = pilot ? pilot.numero : '';
+    document.getElementById('pilotNac').value = pilot ? (pilot.nacionalidade || '') : '';
+    this.editingId = pilot ? pilot.id : null;
+  },
+
+  hideForm() {
+    document.getElementById('pilotModal').classList.remove('show');
+    this.editingId = null;
+  },
+
+  async salvar() {
+    const nome = document.getElementById('pilotNome').value.trim();
+    const equipe = document.getElementById('pilotEquipe').value.trim();
+    const numero = document.getElementById('pilotNumero').value;
+    const nacionalidade = document.getElementById('pilotNac').value.trim();
+
+    if (!nome || !equipe || !numero) {
+      Toast.show('Preencha todos os campos obrigatórios', 'error');
+      return;
+    }
+
+    const data = { nome, equipe, numero: parseInt(numero, 10), nacionalidade };
+
+    try {
+      if (this.editingId) {
+        await API.competidores.atualizar(this.editingId, data);
+        Toast.show('Piloto atualizado com sucesso!', 'success');
+      } else {
+        await API.competidores.criar(data);
+        Toast.show('Piloto cadastrado com sucesso!', 'success');
+      }
+      this.hideForm();
+      await this.carregar();
+    } catch (err) {
+      Toast.show(err.message || 'Erro ao salvar piloto', 'error');
+    }
+  },
+
+  editPilot(id) {
+    const pilot = this.competidores.find(c => c.id === id);
+    if (pilot) this.showForm(pilot);
+  },
+
+  async remover(id) {
+    const confirmed = await showConfirm('Confirmar Remoção', 'Tem certeza que deseja remover este piloto?');
+    if (!confirmed) return;
+    try {
+      await API.competidores.deletar(id);
+      Toast.show('Piloto removido com sucesso!', 'success');
+      await this.carregar();
+    } catch (err) {
+      Toast.show(err.message || 'Erro ao remover piloto', 'error');
+    }
+  }
+};
+
+/* -------------------------
+   MÓDULO: CRONOMETRAGEM
+   ------------------------- */
+const CronometragemModule = {
+  timerInterval: null,
+  timerRunning: false,
+  startTime: 0,
+  elapsedTime: 0,
+
+  async init() {
+    try {
+      const res = await API.competidores.listar();
+      const options = (res.data || []).map(c => `<option value="${c.id}">${c.nome} - ${c.equipe}</option>`).join('');
+      const selectTimer = document.getElementById('timerPilot');
+      const selectManual = document.getElementById('manualPilot');
+      const selectHist = document.getElementById('histPilot');
+      if (selectTimer) selectTimer.innerHTML = '<option value="">Selecione um piloto...</option>' + options;
+      if (selectManual) selectManual.innerHTML = '<option value="">Selecione um piloto...</option>' + options;
+      if (selectHist) selectHist.innerHTML = '<option value="">Selecione um piloto...</option>' + options;
+    } catch (err) {
+      console.warn('Erro init cronometagem:', err);
+    }
+  },
+
+  toggleTimer() {
+    if (this.timerRunning) this.stopTimer();
+    else this.startTimer();
+  },
+
+  startTimer() {
+    const pilotoId = document.getElementById('timerPilot').value;
+    if (!pilotoId) { Toast.show('Selecione um piloto primeiro', 'error'); return; }
+    this.timerRunning = true;
+    this.startTime = Date.now() - this.elapsedTime;
+    const btn = document.getElementById('timerBtn');
+    if (btn) { btn.innerHTML = '<i class="fas fa-pause me-2"></i>PAUSAR'; btn.style.background = '#ff4444'; }
+    document.getElementById('registerVoltaBtn').disabled = false;
+    this.timerInterval = setInterval(() => {
+      this.elapsedTime = Date.now() - this.startTime;
+      this.atualizarDisplay();
+    }, 10);
+  },
+
+  stopTimer() {
+    this.timerRunning = false;
+    clearInterval(this.timerInterval);
+    const btn = document.getElementById('timerBtn');
+    if (btn) { btn.innerHTML = '<i class="fas fa-play me-2"></i>INICIAR'; btn.style.background = ''; }
+  },
+
+  resetTimer() {
+    this.stopTimer();
+    this.elapsedTime = 0;
+    this.startTime = 0;
+    this.atualizarDisplay();
+    document.getElementById('registerVoltaBtn').disabled = true;
+  },
+
+  atualizarDisplay() {
+    const totalMs = this.elapsedTime;
+    const mins = Math.floor(totalMs / 60000);
+    const secs = Math.floor((totalMs % 60000) / 1000);
+    const ms = totalMs % 1000;
+    const el = document.getElementById('timerDisplay');
+    if (el) el.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}.${String(ms).padStart(3,'0')}`;
+  },
+
+  async registrarVolta() {
+    const pilotoId = document.getElementById('timerPilot').value;
+    if (!pilotoId) { Toast.show('Selecione um piloto', 'error'); return; }
+    const tempoSegundos = this.elapsedTime / 1000;
+    const tempoFormatado = formatTime(tempoSegundos);
+    try {
+      await API.voltas.criar({ piloto_id: parseInt(pilotoId,10), tempo: tempoFormatado, pista: 'Circuito de Demonstração' });
+      Toast.show(`Volta registrada: ${tempoFormatado}`, 'success');
+      this.resetTimer();
+    } catch (err) {
+      Toast.show(err.message || 'Erro ao registrar volta', 'error');
+    }
+  },
+
+  async registrarManual() {
+    const pilotoId = document.getElementById('manualPilot').value;
+    const mins = parseInt(document.getElementById('manualMin').value) || 0;
+    const segs = parseFloat(document.getElementById('manualSeg').value) || 0;
+    if (!pilotoId) { Toast.show('Selecione um piloto', 'error'); return; }
+    const tempoTotal = mins * 60 + segs;
+    const tempoFormatado = formatTime(tempoTotal);
+    try {
+      await API.voltas.criar({ piloto_id: parseInt(pilotoId,10), tempo: tempoFormatado, pista: 'Circuito de Demonstração' });
+      Toast.show(`Tempo registrado: ${tempoFormatado}`, 'success');
+      document.getElementById('manualMin').value = '';
+      document.getElementById('manualSeg').value = '';
+    } catch (err) {
+      Toast.show(err.message || 'Erro ao registrar tempo manual', 'error');
+    }
+  },
+
+  async initHistorico() {
+    await this.init();
+  },
+
+  parseTime(timeStr) {
+    return parseTimeFlexible(timeStr);
+  },
+
+  async carregarHistorico(pilotoId) {
+    const histEl = document.getElementById('voltasHistorico');
+    const statsEl = document.getElementById('voltasStats');
+    if (!pilotoId) {
+      histEl.innerHTML = '<div class="empty-state"><i class="fas fa-flag-checkered"></i><p>Selecione um piloto</p></div>';
+      statsEl.innerHTML = '';
+      return;
+    }
+    try {
+      const res = await API.voltas.listar({ piloto_id: pilotoId });
+      const voltas = (res.data || []).slice().sort((a,b) => this.parseTime(a.tempo) - this.parseTime(b.tempo));
+      if (!voltas.length) {
+        histEl.innerHTML = '<div class="empty-state"><i class="fas fa-flag-checkered"></i><p>Nenhuma volta registrada</p></div>';
+        statsEl.innerHTML = '';
+        return;
+      }
+      const melhor = this.parseTime(voltas[0].tempo);
+      statsEl.innerHTML = `
+        <div class="row g-2 mb-3">
+          <div class="col-6"><div class="timing-stat"><div class="timing-stat-val">${voltas.length}</div><div class="timing-stat-lbl">Voltas</div></div></div>
+          <div class="col-6"><div class="timing-stat"><div class="timing-stat-val">${formatTime(melhor)}</div><div class="timing-stat-lbl">Melhor Volta</div></div></div>
+        </div>`;
+      histEl.innerHTML = voltas.map((v,i) => `
+        <div class="volta-item">
+          <span>Volta ${i+1}</span>
+          <span class="volta-time ${i===0 ? 'volta-best' : ''}">${v.tempo}</span>
+          <span style="font-size:0.7rem;color:var(--f1-silver)">${v.created_at ? new Date(v.created_at).toLocaleDateString('pt-BR') : ''}</span>
+        </div>
+      `).join('');
+    } catch (err) {
+      Toast.show('Erro ao carregar histórico', 'error');
+    }
+  }
+};
+
+/* -------------------------
+   MÓDULO: GRID
+   ------------------------- */
+const GridModule = {
+  grid: [],
+
+  async carregar() {
+    try {
+      const [gridRes, compRes] = await Promise.all([API.grid.get(), API.competidores.listar()]);
+      const comps = compRes.data || [];
+      this.grid = (gridRes.data && gridRes.data.length) ? gridRes.data : comps.map((c,i) => ({ piloto_id:c.id, nome:c.nome, equipe:c.equipe, posicao: i+1 }));
+      this.renderizar();
+    } catch (err) {
+      Toast.show('Erro ao carregar grid', 'error');
+    }
+  },
+
+  renderizar() {
+    const container = document.getElementById('gridContainer');
+    if (!this.grid.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-th-list"></i><p>Nenhum piloto no grid</p></div>';
+      return;
+    }
+    container.innerHTML = `
+      <div class="grid-track">
+        <div class="grid-indicator mb-3">${[1,2,3,4,5].map(i => `<div class="grid-light ${i<=3 ? 'on' : ''}"></div>`).join('')}</div>
+        ${this.grid.map((p,i) => `
+          <div class="grid-row" draggable="true" data-index="${i}">
+            <div class="grid-pos">P${i+1}</div>
+            <div class="flex-grow-1">
+              <div style="font-weight:700">${p.nome}</div>
+              <div style="font-size:0.75rem;color:var(--f1-silver)">${p.equipe}</div>
+            </div>
+            <i class="fas fa-grip-vertical" style="color:var(--f1-silver)"></i>
+          </div>
+        `).join('')}
+      </div>`;
+    this.setupDragAndDrop();
+  },
+
+  setupDragAndDrop() {
+    const rows = document.querySelectorAll('.grid-row');
+    rows.forEach(row => {
+      row.addEventListener('dragstart', e => {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', e.target.dataset.index);
+      });
+      row.addEventListener('dragend', e => {
+        e.target.classList.remove('dragging');
+        document.querySelectorAll('.grid-row').forEach(r => r.classList.remove('drag-over'));
+      });
+      row.addEventListener('dragover', e => {
+        e.preventDefault();
+        const target = e.target.closest('.grid-row');
+        if (target) target.classList.add('drag-over');
+      });
+      row.addEventListener('dragleave', e => {
+        const target = e.target.closest('.grid-row');
+        if (target) target.classList.remove('drag-over');
+      });
+      row.addEventListener('drop', e => {
+        e.preventDefault();
+        const from = parseInt(e.dataTransfer.getData('text/plain'),10);
+        const to = parseInt(e.target.closest('.grid-row').dataset.index,10);
+        if (from !== to) {
+          const item = this.grid.splice(from,1)[0];
+          this.grid.splice(to,0,item);
+          this.renderizar();
+        }
+      });
+    });
+  },
+
+  async salvar() {
+    try {
+      const data = this.grid.map((p,i) => ({ piloto_id: p.piloto_id, posicao: i+1 }));
+      await API.grid.salvar({ grid: data });
+      Toast.show('Grid salvo com sucesso!', 'success');
+    } catch (err) {
+      Toast.show(err.message || 'Erro ao salvar grid', 'error');
+    }
+  }
+};
+
+/* -------------------------
+   MÓDULO: RANKING
+   ------------------------- */
+const RankingModule = {
+  async carregar() {
+    try {
+      const res = await API.ranking.get();
+      const ranking = res.data || [];
+      if (ranking.length) {
+        document.getElementById('liderNome').textContent = ranking[0].nome || '—';
+        document.getElementById('melhorVoltaGlobal').textContent = ranking[0].melhor_volta ? formatTime(ranking[0].melhor_volta) : '—';
+      }
+      const tbody = document.getElementById('rankingTable');
+      if (!ranking.length) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-trophy"></i><p>Sem dados de ranking</p></div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = ranking.map((p,i) => {
+        let posClass = 'pos-n';
+        if (i===0) posClass='pos-1'; else if (i===1) posClass='pos-2'; else if (i===2) posClass='pos-3';
+        return `
+          <tr>
+            <td class="text-center"><div class="pos-medal ${posClass}">${i+1}</div></td>
+            <td><strong>${p.nome}</strong></td>
+            <td><span class="team-badge">${p.equipe}</span></td>
+            <td><span class="volta-time">${p.melhor_volta ? formatTime(p.melhor_volta) : '—'}</span></td>
+            <td>${p.media_voltas ? formatTime(p.media_voltas) : '—'}</td>
+            <td>${p.total_voltas || 0}</td>
+          </tr>`;
+      }).join('');
+    } catch (err) {
+      Toast.show('Erro ao carregar ranking', 'error');
+    }
+  }
+};
+
+/* -------------------------
+   MÓDULO: TABELA (GRÁFICO)
+   ------------------------- */
+const TabelaModule = {
+  chart: null,
+  dadosCompletos: [],
+
+  async init() {
+    await this.carregarPilotos();
+    await this.atualizarGrafico();
+  },
+
+  async carregarPilotos() {
+    try {
+      const response = await API.competidores.listar();
+      const select = document.getElementById('tabelaPilot');
+      select.innerHTML = '<option value="">Selecione um piloto...</option>';
+      (response.data || []).forEach(p => select.innerHTML += `<option value="${p.id}">${p.nome} - ${p.equipe}</option>`);
+    } catch (err) {
+      Toast.show('Erro ao carregar pilotos', 'error');
+    }
+  },
+
+  async atualizarGrafico() {
+    const pilotoId = document.getElementById('tabelaPilot').value;
+    const pista = document.getElementById('tabelaPista').value;
+    if (!pilotoId) { this.limparDados(); return; }
+    try {
+      const res = await API.voltas.listar({ piloto_id: pilotoId });
+      let voltas = (res.data || []);
+      if (pista && pista !== 'todas') voltas = voltas.filter(v => v.pista === pista);
+      voltas.sort((a,b) => new Date(a.data_hora || a.created_at) - new Date(b.data_hora || b.created_at));
+      this.dadosCompletos = voltas.map((v, idx) => {
+        const tempoSeg = this.converterTempoParaSegundos(v.tempo);
+        return { volta: idx+1, tempo: v.tempo, tempoSegundos: tempoSeg, velocidade: this.calcularVelocidade(tempoSeg), pista: v.pista || 'Circuito de Demonstração', data: v.data_hora || v.created_at };
+      });
+      this.renderizarGrafico();
+      this.atualizarEstatisticas();
+      this.atualizarTabela();
+    } catch (err) {
+      Toast.show('Erro ao carregar dados do gráfico', 'error');
+    }
+  },
+
+  converterTempoParaSegundos(tempo) {
+    // usa parser mais tolerante
+    return parseTimeFlexible(tempo);
+  },
+
+  calcularVelocidade(tempoSegundos) {
+    if (!tempoSegundos || tempoSegundos <= 0) return 0;
+    const comprimentoPista = 5; // km
+    const velocidadeMedia = (comprimentoPista / tempoSegundos) * 3600;
+    const variacao = (Math.random()*20 - 10);
+    return Math.round((velocidadeMedia + variacao) * 10) / 10;
+  },
+
+  renderizarGrafico() {
+    const canvas = document.getElementById('velocidadeChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (this.chart) this.chart.destroy();
+    if (!this.dadosCompletos.length) return;
+    const labels = this.dadosCompletos.map(d => `Volta ${d.volta}`);
+    const velocidades = this.dadosCompletos.map(d => d.velocidade);
+    const tempos = this.dadosCompletos.map(d => d.tempoSegundos);
+    const gradient = ctx.createLinearGradient(0,0,0,400); gradient.addColorStop(0,'rgba(225,6,0,0.8)'); gradient.addColorStop(1,'rgba(225,6,0,0.1)');
+    this.chart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [
+        { label:'Velocidade (km/h)', data: velocidades, borderColor:'#E10600', backgroundColor:gradient, borderWidth:3, yAxisID:'y' },
+        { label:'Tempo (s)', data: tempos, borderColor:'#FFD700', backgroundColor:'rgba(255,215,0,0.1)', borderWidth:2, borderDash:[5,5], yAxisID:'y1' }
+      ]},
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index', intersect:false},
+        plugins:{
+          legend:{ labels:{ color:'#b0b0c0' } },
+          tooltip:{
+            callbacks:{
+              label(ctx) {
+                const label = ctx.dataset.label || '';
+                const raw = ctx.raw;
+                if (label && label.toLowerCase().includes('tempo')) {
+                  return `${label}: ${formatTime(parseFloat(raw))}`;
+                }
+                const val = (typeof raw === 'number') ? raw : Number(raw);
+                return `${label}: ${isNaN(val) ? raw : val.toFixed(1) + ' km/h'}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x:{ ticks:{ color:'#b0b0c0' } },
+          y: { type:'linear', position:'left', title:{display:true,text:'Velocidade (km/h)'} },
+          y1:{ type:'linear', position:'right', title:{display:true,text:'Tempo (s)'}, grid:{drawOnChartArea:false},
+               ticks:{ callback: function(value){ return formatTime(Number(value)); }, color:'#b0b0c0' } }
+        }
+      });
+  },
+
+  atualizarEstatisticas() {
+    if (!this.dadosCompletos.length) {
+      document.getElementById('statVelocidadeMax').textContent='—';
+      document.getElementById('statVelocidadeMedia').textContent='—';
+      document.getElementById('statTotalVoltas').textContent='—';
+      document.getElementById('statMelhorTempo').textContent='—';
+      return;
+    }
+    const vel = this.dadosCompletos.map(d=>d.velocidade);
+    const tempos = this.dadosCompletos.map(d=>d.tempoSegundos);
+    const vmax = Math.max(...vel);
+    const vavg = vel.reduce((a,b)=>a+b,0)/vel.length;
+    const total = this.dadosCompletos.length;
+    const best = Math.min(...tempos);
+    document.getElementById('statVelocidadeMax').textContent = `${vmax.toFixed(1)} km/h`;
+    document.getElementById('statVelocidadeMedia').textContent = `${vavg.toFixed(1)} km/h`;
+    document.getElementById('statTotalVoltas').textContent = total;
+    document.getElementById('statMelhorTempo').textContent = formatTime(best);
+  },
+
+  atualizarTabela() {
+    const tbody = document.getElementById('tabelaDados');
+    if (!this.dadosCompletos.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-chart-line"></i><p>Nenhum dado disponível para este piloto</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = this.dadosCompletos.map(d => `
+      <tr>
+        <td class="text-center"><span class="badge" style="background:rgba(225,6,0,0.2);color:var(--f1-red);font-family:var(--font-mono)">#${d.volta}</span></td>
+        <td><span class="volta-time">${d.tempo && String(d.tempo).trim() ? d.tempo : formatTime(d.tempoSegundos)}</span></td>
+        <td><span style="font-family:var(--font-mono);color:var(--f1-gold)">${(typeof d.velocidade === 'number') ? d.velocidade.toFixed(1) : d.velocidade} km/h</span></td>
+        <td><span class="team-badge">${d.pista || '—'}</span></td>
+        <td><span style="color:var(--f1-silver);font-size:0.85rem">${d.data ? new Date(d.data).toLocaleDateString('pt-BR') : ''}</span></td>
+      </tr>`).join('');
+  },
+
+  limparDados() {
+    if (this.chart) { this.chart.destroy(); this.chart = null; }
+    // limpa canvas para evitar artefatos
+    const canvas = document.getElementById('velocidadeChart');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    this.dadosCompletos = [];
+    document.getElementById('statVelocidadeMax').textContent = '—';
+    document.getElementById('statVelocidadeMedia').textContent = '—';
+    document.getElementById('statTotalVoltas').textContent = '—';
+    document.getElementById('statMelhorTempo').textContent = '—';
+    document.getElementById('tabelaDados').innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-chart-line"></i><p>Selecione um piloto para visualizar os dados</p></div></td></tr>`;
+  }
+};
+
+/* -------------------------
+   FUNÇÃO: CARREGAR HOME
+   Atualiza estatísticas e o bloco "Pódio Atual"
+   ------------------------- */
+async function carregarHome() {
+  try {
+    // Pilotos
+    const compRes = await API.competidores.listar();
+    const pilotos = (compRes && compRes.data) ? compRes.data : (Array.isArray(compRes) ? compRes : []);
+    document.getElementById('statPilotos').textContent = pilotos.length || 0;
+
+    // Voltas
+    const voltRes = await API.voltas.listar();
+    const voltas = (voltRes && voltRes.data) ? voltRes.data : (Array.isArray(voltRes) ? voltRes : []);
+    document.getElementById('statVoltas').textContent = voltas.length || 0;
+
+    // Equipes
+    const equipes = new Set((pilotos || []).map(p => p.equipe).filter(Boolean));
+    document.getElementById('statEquipes').textContent = equipes.size || 0;
+
+    // Melhor volta global
+    let melhorSeg = null;
+    for (const v of voltas) {
+      if (!v || !v.tempo) continue;
+      const s = CronometragemModule.parseTime(v.tempo);
+      if (melhorSeg === null || s < melhorSeg) melhorSeg = s;
+    }
+    document.getElementById('statMelhorVolta').textContent = (melhorSeg !== null) ? formatTime(melhorSeg) : '—';
+
+    // Pódio / Top3: tentar usar ranking da API, fallback pelos melhores tempos
+    let topHtml = '';
+    try {
+      const rankRes = await API.ranking.get();
+      const ranking = (rankRes && rankRes.data) ? rankRes.data : (Array.isArray(rankRes) ? rankRes : []);
+      if (ranking && ranking.length) {
+        topHtml = ranking.slice(0,3).map((r,i) => `
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <div style="font-size:1.8rem">${i===0?'🥇':i===1?'🥈':'🥉'}</div>
+            <div>
+              <div style="font-weight:700">${r.nome || '—'}</div>
+              <div style="color:var(--f1-silver);font-size:0.85rem">${r.equipe || ''}</div>
+            </div>
+            <div style="margin-left:auto;font-family:var(--font-mono);color:var(--f1-red)">${r.melhor_volta ? formatTime(r.melhor_volta) : '—'}</div>
+          </div>`).join('');
+      }
+    } catch (e) {
+      // fallback: compute top3 from voltas
+    }
+
+    if (!topHtml) {
+      // fallback por melhores voltas por piloto
+      const melhores = {};
+      for (const v of voltas) {
+        if (!v || !v.tempo || !v.piloto_id) continue;
+        const s = CronometragemModule.parseTime(v.tempo);
+        if (!melhores[v.piloto_id] || s < melhores[v.piloto_id].tempoSeg) {
+          melhores[v.piloto_id] = { tempoSeg: s, tempo: v.tempo };
+        }
+      }
+      const arr = Object.keys(melhores).map(id => ({ id, ...melhores[id] }));
+      arr.sort((a,b) => a.tempoSeg - b.tempoSeg);
+      topHtml = arr.slice(0,3).map((t,i) => {
+        const p = pilotos.find(p => String(p.id) === String(t.id)) || {};
+        return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div style="font-size:1.8rem">${i===0?'🥇':i===1?'🥈':'🥉'}</div>
+          <div>
+            <div style="font-weight:700">${p.nome || '—'}</div>
+            <div style="color:var(--f1-silver);font-size:0.85rem">${p.equipe || ''}</div>
+          </div>
+          <div style="margin-left:auto;font-family:var(--font-mono);color:var(--f1-red)">${t.tempo ? t.tempo : '—'}</div>
+        </div>`;
+      }).join('');
+    }
+
+    if (!topHtml) topHtml = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Sem dados</p></div>';
+    document.getElementById('homeTop3').innerHTML = topHtml;
+  } catch (err) {
+    console.warn('carregarHome erro', err);
+  }
+}
   </script>
 
 </body>
