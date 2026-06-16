@@ -1,0 +1,52 @@
+:root{
+  --bg:#ffffff;
+  --text:#111827;
+  --primary:#0066ff;
+  --gap:1rem;
+  --max-w:1100px;
+  --radius:8px;
+}
+
+/* Reset simples */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.4;
+  padding:var(--gap);
+}
+
+/* Layout */
+.site__header{display:flex;align-items:center;justify-content:space-between;max-width:var(--max-w);margin:0 auto}
+.site__main{max-width:var(--max-w);margin:var(--gap) auto;display:block}
+
+/* Nav */
+.nav{display:flex}
+.nav--hidden{display:none}
+.nav__list{display:flex;gap:.75rem;list-style:none;padding:0;margin:0}
+.nav__link{text-decoration:none;color:inherit}
+
+/* Hero */
+.hero{padding:var(--gap) 0}
+.hero__title{margin:.2rem 0}
+
+/* Cards */
+.card{background:#fff;border-radius:var(--radius);padding:var(--gap);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+
+/* Form */
+.form input, .form button{display:block;width:100%;margin-top:.5rem;padding:.6rem;border-radius:6px}
+.form input{border:1px solid #ddd}
+.form button{background:var(--primary);color:#fff;border:0}
+
+/* Accessibility focus */
+a:focus, button:focus, input:focus{outline:3px solid color-mix(in srgb, var(--primary) 30%, transparent);outline-offset:2px}
+
+/* Small screens (mobile-first) */
+@media(min-width:700px){
+  .nav--hidden{display:block}
+  .site__header{padding:0}
+  .hero{display:flex;gap:var(--gap);align-items:center}
+}
