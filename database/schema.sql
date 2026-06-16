@@ -34,23 +34,3 @@ CREATE TABLE IF NOT EXISTS grid_largada (
     posicao INT NOT NULL,
     FOREIGN KEY (competidor_id) REFERENCES competidores(id) ON DELETE CASCADE
 );
-
--- Dados iniciais de exemplo
-INSERT INTO competidores (nome, equipe, numero_carro, nacionalidade) VALUES
-('Max Verstappen', 'Red Bull Racing', 1, 'Holandês'),
-('Lewis Hamilton', 'Ferrari', 44, 'Britânico'),
-('Charles Leclerc', 'Ferrari', 16, 'Monegasco'),
-('Lando Norris', 'McLaren', 4, 'Britânico'),
-('Carlos Sainz', 'Williams', 55, 'Espanhol'),
-('Fernando Alonso', 'Aston Martin', 14, 'Espanhol');
-
-INSERT INTO voltas (competidor_id, tempo_volta) VALUES
-(1, 90.123), (1, 89.876), (1, 88.543),
-(2, 91.234), (2, 90.567), (2, 89.901),
-(3, 90.876), (3, 90.234), (3, 91.100),
-(4, 91.567), (4, 90.900), (4, 90.123),
-(5, 92.345), (5, 91.789), (5, 91.456),
-(6, 91.900), (6, 91.234), (6, 90.678);
-
-INSERT INTO grid_largada (competidor_id, posicao) VALUES
-(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6);
