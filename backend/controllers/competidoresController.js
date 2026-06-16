@@ -35,7 +35,7 @@ const buscarPorId = async (req, res) => {
 // POST /competidores - Criar novo competidor
 const criar = async (req, res) => {
   try {
-    const { nome, equipe, numero_carro, nacionalidade } = req.body;
+    const { nome, equipe, numero_carro, nacionalidade, foto } = req.body;
     if (!nome || !equipe || !numero_carro) {
       return res.status(400).json({ success: false, message: 'Nome, equipe e número do carro são obrigatórios' });
     }
@@ -47,8 +47,8 @@ const criar = async (req, res) => {
     }
 
     const [result] = await pool.query(
-      'INSERT INTO competidores (nome, equipe, numero_carro, nacionalidade) VALUES (?, ?, ?, ?)',
-      [nome, equipe, numero_carro, nacionalidade || null]
+      'INSERT INTO competidores (nome, equipe, numero_carro, nacionalidade, foto) VALUES (?, ?, ?, ?, ?)',
+      [nome, equipe, numero_carro, nacionalidade || null, foto || null]
     );
 
     const [novo] = await pool.query('SELECT * FROM competidores WHERE id = ?', [result.insertId]);
@@ -61,7 +61,7 @@ const criar = async (req, res) => {
 // PUT /competidores/:id - Atualizar competidor
 const atualizar = async (req, res) => {
   try {
-    const { nome, equipe, numero_carro, nacionalidade } = req.body;
+    const { nome, equipe, numero_carro, nacionalidade, foto } = req.body;
     const { id } = req.params;
 
     const [existente] = await pool.query('SELECT id FROM competidores WHERE id = ?', [id]);
@@ -76,8 +76,8 @@ const atualizar = async (req, res) => {
     }
 
     await pool.query(
-      'UPDATE competidores SET nome = ?, equipe = ?, numero_carro = ?, nacionalidade = ? WHERE id = ?',
-      [nome, equipe, numero_carro, nacionalidade || null, id]
+      'UPDATE competidores SET nome = ?, equipe = ?, numero_carro = ?, nacionalidade = ?, foto = ? WHERE id = ?',
+      [nome, equipe, numero_carro, nacionalidade || null, foto || null, id]
     );
 
     const [atualizado] = await pool.query('SELECT * FROM competidores WHERE id = ?', [id]);

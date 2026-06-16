@@ -296,6 +296,70 @@ body:has(button:hover) .cursor {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+.pilot-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  border: 1px solid rgba(225,6,0,0.35);
+  background: rgba(225,6,0,0.08);
+  color: var(--f1-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.pilot-avatar.small {
+  width: 42px;
+  height: 42px;
+}
+.pilot-avatar img,
+.pilot-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pilot-photo-box {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 1rem;
+  align-items: start;
+  border: 1px solid var(--f1-border);
+  border-radius: 8px;
+  padding: 1rem;
+  background: rgba(255,255,255,0.03);
+}
+.pilot-photo-preview {
+  width: 120px;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  border: 1px solid rgba(225,6,0,0.35);
+  background: rgba(0,0,0,0.22);
+  color: var(--f1-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 1.8rem;
+}
+.pilot-camera-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.pilot-camera-video {
+  display: none;
+  width: min(100%, 320px);
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--f1-border);
+  background: #000;
+}
+.pilot-camera-video.active {
+  display: block;
+}
 
 /* ---- Formulários ---- */
 .f1-input {
@@ -627,6 +691,33 @@ body:has(button:hover) .cursor {
 }
 .volta-best { color: var(--f1-gold) !important; }
 
+/* ---- Analise de Voltas ---- */
+.analysis-pilot-info {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--f1-white);
+}
+.analysis-chart-wrap {
+  position: relative;
+  min-height: 420px;
+}
+.analysis-chart-wrap canvas {
+  width: 100%;
+  height: 420px;
+  border-radius: 8px;
+  border: 1px solid var(--f1-border);
+  background: var(--f1-card);
+}
+.analysis-chart-empty {
+  position: absolute;
+  inset: 0;
+  background: rgba(30,30,46,0.92);
+  border: 1px solid var(--f1-border);
+  border-radius: 8px;
+}
+
 /* ---- Next Race Card ---- */
 .next-race-card {
   background: linear-gradient(135deg, rgba(225,6,0,0.1), rgba(225,6,0,0.02));
@@ -674,6 +765,8 @@ body:has(button:hover) .cursor {
   .timer-display { font-size: 2rem; }
   .stat-number { font-size: 1.8rem; }
   .section-title { font-size: 1.1rem; }
+  .pilot-photo-box { grid-template-columns: 1fr; }
+  .pilot-photo-preview { width: 100%; max-width: 220px; }
   .cursor, .cursor-trail { display: none; }
   body { cursor: auto; }
 }

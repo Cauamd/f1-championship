@@ -32,9 +32,15 @@ async function initDB() {
         equipe VARCHAR(255) NOT NULL,
         numero_carro INT NOT NULL,
         nacionalidade VARCHAR(100),
+        foto LONGTEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    const [competidoresColumns] = await conn.query(`SHOW COLUMNS FROM competidores LIKE 'foto'`);
+    if (competidoresColumns.length === 0) {
+      await conn.query(`ALTER TABLE competidores ADD COLUMN foto LONGTEXT AFTER nacionalidade`);
+    }
 
     // Cria tabela voltas
     await conn.query(`

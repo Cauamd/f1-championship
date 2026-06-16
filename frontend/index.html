@@ -68,6 +68,30 @@
           <label class="form-label">Sala</label>
           <input type="text" id="pilotNac" class="form-control f1-input" placeholder="Ex: Holandês">
         </div>
+        <div class="col-12">
+          <label class="form-label">Foto do Piloto (opcional)</label>
+          <input type="hidden" id="pilotFoto">
+          <div class="pilot-photo-box">
+            <div class="pilot-photo-preview" id="pilotPhotoPreview">
+              <i class="fas fa-camera"></i>
+            </div>
+            <div class="pilot-camera-panel">
+              <video id="pilotCameraVideo" class="pilot-camera-video" autoplay playsinline></video>
+              <canvas id="pilotCameraCanvas" width="320" height="240" style="display:none"></canvas>
+              <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn-f1-outline" onclick="CompetidoresModule.iniciarCamera()">
+                  <i class="fas fa-video me-1"></i>Usar Camera
+                </button>
+                <button type="button" class="btn-f1" id="pilotCaptureBtn" onclick="CompetidoresModule.tirarFoto()" style="display:none">
+                  <i class="fas fa-camera me-1"></i>Tirar Foto
+                </button>
+                <button type="button" class="btn-danger-f1" onclick="CompetidoresModule.removerFoto()">
+                  <i class="fas fa-times me-1"></i>Remover
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="d-flex gap-3 justify-content-end mt-4">
         <button type="button" class="btn-f1-outline" onclick="CompetidoresModule.hideForm()">CANCELAR</button>
@@ -96,21 +120,10 @@
           <li class="nav-item"><a class="nav-link active" href="#" data-page="home" onclick="navigate('home');return false"><i class="fas fa-home me-1"></i>Início</a></li>
           <li class="nav-item"><a class="nav-link" href="#" data-page="competidores" onclick="navigateTo('competidores');return false"><i class="fas fa-users me-1"></i>Pilotos</a></li>
           <li class="nav-item"><a class="nav-link" href="#" data-page="cronometragem" onclick="navigateTo('cronometragem');return false"><i class="fas fa-stopwatch me-1"></i>Cronometro</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-page="analise" onclick="navigateTo('analise');return false"><i class="fas fa-chart-line me-1"></i>Análise</a></li>
           <li class="nav-item"><a class="nav-link" href="#" data-page="grid" onclick="navigateTo('grid');return false"><i class="fas fa-th-list me-1"></i>Grid</a></li>
           <li class="nav-item"><a class="nav-link" href="#" data-page="ranking" onclick="navigateTo('ranking');return false"><i class="fas fa-trophy me-1"></i>Ranking</a></li>
         </ul>
-        <!-- Config de API URL -->
-        <div class="ms-3 d-none d-lg-flex align-items-center gap-2">
-          <div style="position:relative">
-            <input type="text" id="apiUrlInput" class="form-control f1-input"
-              placeholder="http://localhost:3001"
-              style="font-size:0.75rem;padding:6px 12px;width:200px"
-              value="http://localhost:3001">
-          </div>
-          <button class="btn-f1-outline" class="btn-f1-outline" title="Update API URL" onclick="updateApiUrl()"></button>
-            <i class="fas fa-plug"></i>
-          </button>
-        </div>
       </div>
     </div>
   </nav>
@@ -375,6 +388,66 @@
   </div>
 
   <!-- ==============================
+       PÁGINA: ANÁLISE DE PILOTO
+  ============================== -->
+  <div id="analise" class="page">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div class="section-title mb-0"><i class="fas fa-chart-line text-red"></i>Análise de Voltas</div>
+        <button class="btn-f1-outline" onclick="AnaliseModule.carregar()"><i class="fas fa-sync me-2"></i>Atualizar</button>
+      </div>
+
+      <div class="f1-card mb-4">
+        <div class="row g-3 align-items-end">
+          <div class="col-lg-8">
+            <label class="form-label">Piloto</label>
+            <select id="analysisPilot" class="form-select f1-input" onchange="AnaliseModule.selecionarPiloto(this.value)">
+              <option value="">Selecione um piloto...</option>
+            </select>
+          </div>
+          <div class="col-lg-4">
+            <div id="analysisPilotInfo" class="analysis-pilot-info"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-xl-7">
+          <div class="f1-card h-100">
+            <div class="f1-card-header"><i class="fas fa-chart-area"></i>Gráfico de Tempos</div>
+            <div class="analysis-chart-wrap">
+              <canvas id="lapsChart" width="900" height="420"></canvas>
+              <div id="lapsChartEmpty" class="empty-state analysis-chart-empty">
+                <i class="fas fa-chart-line"></i>
+                <p>Selecione um piloto para ver o gráfico</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-5">
+          <div class="f1-card p-0 h-100" style="overflow:hidden">
+            <div class="f1-card-header m-0 p-3"><i class="fas fa-table"></i>Tabela de Voltas</div>
+            <div style="overflow:auto;max-height:460px">
+              <table class="f1-table">
+                <thead>
+                  <tr>
+                    <th>VOLTA</th>
+                    <th>TEMPO</th>
+                    <th>DATA</th>
+                  </tr>
+                </thead>
+                <tbody id="analysisTable">
+                  <tr><td colspan="3"><div class="empty-state"><i class="fas fa-flag-checkered"></i><p>Selecione um piloto</p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================
        PÁGINA: GRID
   ============================== -->
   <div id="grid" class="page">
@@ -469,6 +542,7 @@
 <script src="js/api.js"></script>
 <script src="js/competidores.js"></script>
 <script src="js/cronometragem.js"></script>
+<script src="js/analise.js"></script>
 <script src="js/grid-ranking.js"></script>
 
 <script>
@@ -484,6 +558,9 @@ async function navigateTo(pageId) {
     case 'cronometragem':
       await CronometragemModule.init();
       await CronometragemModule.initHistorico();
+      break;
+    case 'analise':
+      await AnaliseModule.carregar();
       break;
     case 'grid':
       await GridModule.carregar();
@@ -578,9 +655,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Página inicial
   const savedPage = localStorage.getItem('f1_current_page') || 'home';
   setTimeout(async () => {
-    navigate(savedPage);
-    if (savedPage !== 'home') navigate('home');
-    await carregarHome();
+    await navigateTo(savedPage);
   }, 1900);
 });
 </script>

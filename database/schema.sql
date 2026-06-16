@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS competidores (
     equipe VARCHAR(255) NOT NULL,
     numero_carro INT NOT NULL,
     nacionalidade VARCHAR(100),
+    foto LONGTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
