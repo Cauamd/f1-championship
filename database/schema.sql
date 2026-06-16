@@ -33,4 +33,8 @@ CREATE TABLE IF NOT EXISTS grid_largada (
     competidor_id INT NOT NULL,
     posicao INT NOT NULL,
     FOREIGN KEY (competidor_id) REFERENCES competidores(id) ON DELETE CASCADE
+<<<<<<< HEAD
 );
+=======
+);
+>>>>>>> 3a06383f2ceb6f43e388d2b8aa7fe0d78fbf0910
