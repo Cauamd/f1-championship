@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,526 +11,2928 @@
   <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@300;400;500;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <!-- CSS Principal -->
-  <link href="css/style.css" rel="stylesheet">
-</head>
-<body>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Russo+One&family=Exo+2:wght@300;400;500;600;700;900&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-<!-- ===== CURSOR PERSONALIZADO ===== -->
-<div class="cursor"></div>
-<div class="cursor-trail"></div>
+  <style>
+    /* ============================================
+       F1 Championship - CSS Principal
+       ============================================ */
 
-<!-- ===== BACKGROUND ANIMADO ===== -->
-<canvas id="particles-canvas"></canvas>
-<div class="speed-lines"></div>
-
-<!-- ===== LOADER ===== -->
-<div class="f1-loader" id="loader">
-  <div class="loader-logo">F1</div>
-  <div class="loader-text">Championship</div>
-  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
-</div>
-
-<!-- ===== TOAST CONTAINER ===== -->
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- ===== MODAL DE CONFIRMAÇÃO ===== -->
-<div class="f1-modal-overlay" id="confirmModal">
-  <div class="f1-modal">
-    <h5 id="confirmTitle" class="text-red"></h5>
-    <p id="confirmMessage"></p>
-    <div class="d-flex gap-3 justify-content-end">
-      <button class="btn-f1-outline" id="confirmNo">CANCELAR</button>
-      <button class="btn-f1" id="confirmYes" style="background:#ff4444">CONFIRMAR</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== MODAL PILOTO ===== -->
-<div class="f1-modal-overlay" id="pilotModal">
-  <div class="f1-modal" style="max-width:520px">
-    <h5 id="pilotModalTitle" class="text-red">NOVO PILOTO</h5>
-    <form id="pilotForm" autocomplete="off">
-      <div class="row g-3">
-        <div class="col-12">
-          <label class="form-label">Nome do Piloto *</label>
-          <input type="text" id="pilotNome" class="form-control f1-input" placeholder="Ex: Max Verstappen">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Equipe *</label>
-          <input type="text" id="pilotEquipe" class="form-control f1-input" placeholder="Ex: Red Bull Racing">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Número do Carro *</label>
-          <input type="number" id="pilotNumero" class="form-control f1-input" placeholder="Ex: 1" min="1" max="99">
-        </div>
-        <div class="col-12">
-          <label class="form-label">Sala</label>
-          <input type="text" id="pilotNac" class="form-control f1-input" placeholder="Ex: Holandês">
-        </div>
-      </div>
-      <div class="d-flex gap-3 justify-content-end mt-4">
-        <button type="button" class="btn-f1-outline" onclick="CompetidoresModule.hideForm()">CANCELAR</button>
-        <button type="button" class="btn-f1" id="pilotSaveBtn" onclick="CompetidoresModule.salvar()">SALVAR</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ===== APP ===== -->
-<div id="app">
-
-  <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg f1-navbar">
-    <div class="container">
-      <a class="navbar-brand" href="#" onclick="navigate('home')">
-        <i class="fas fa-flag-checkered" style="color:var(--f1-red)"></i>
-        F1 <span>CHAMPIONSHIP</span>
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
-              class="navbar-toggler" title="Toggle navigation"></button>
-        <i class="fas fa-bars"></i>
-      </button>
-      <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" href="#" data-page="home" onclick="navigate('home');return false"><i class="fas fa-home me-1"></i>Início</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-page="competidores" onclick="navigateTo('competidores');return false"><i class="fas fa-users me-1"></i>Pilotos</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-page="cronometragem" onclick="navigateTo('cronometragem');return false"><i class="fas fa-stopwatch me-1"></i>Cronometro</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-page="grid" onclick="navigateTo('grid');return false"><i class="fas fa-th-list me-1"></i>Grid</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-page="ranking" onclick="navigateTo('ranking');return false"><i class="fas fa-trophy me-1"></i>Ranking</a></li>
-        </ul>
-        <!-- Config de API URL -->
-        <div class="ms-3 d-none d-lg-flex align-items-center gap-2">
-          <div style="position:relative">
-            <input type="text" id="apiUrlInput" class="form-control f1-input"
-              placeholder="http://localhost:3001"
-              style="font-size:0.75rem;padding:6px 12px;width:200px"
-              value="http://localhost:3001">
-          </div>
-          <button class="btn-f1-outline" class="btn-f1-outline" title="Update API URL" onclick="updateApiUrl()"></button>
-            <i class="fas fa-plug"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ==============================
-       PÁGINA: HOME
-  ============================== -->
-  <div id="home" class="page active">
-    <div class="container">
-
-      <!-- Hero -->
-      <div class="hero-banner mb-4">
-        <div class="hero-badge">🏎️ Temporada 2026</div>
-        <h1>F1 Championship</h1>
-        <p style="color:var(--f1-silver);max-width:560px;line-height:1.7">
-          Gerencie pilotos, registre tempos de volta, organize o grid de largada e acompanhe o ranking em tempo real.
-        </p>
-        <div class="d-flex gap-3 mt-3 flex-wrap">
-          <button class="btn-f1" onclick="navigateTo('competidores')"><i class="fas fa-users me-2"></i>Ver Pilotos</button>
-          <button class="btn-f1-outline" onclick="navigateTo('ranking')"><i class="fas fa-trophy me-2"></i>Ver Ranking</button>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-          <div class="stat-card">
-            <div class="stat-number" id="statPilotos">—</div>
-            <div class="stat-label"><i class="fas fa-users me-1"></i>Pilotos</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-card">
-            <div class="stat-number" id="statVoltas">—</div>
-            <div class="stat-label"><i class="fas fa-stopwatch me-1"></i>Voltas</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-card">
-            <div class="stat-number" id="statEquipes">—</div>
-            <div class="stat-label"><i class="fas fa-flag me-1"></i>Equipes</div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-card">
-            <div class="stat-number text-mono" id="statMelhorVolta" style="font-size:1.4rem">—</div>
-            <div class="stat-label"><i class="fas fa-bolt me-1"></i>Melhor Volta</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row g-4">
-        <!-- Próxima corrida -->
-        <div class="col-lg-5">
-          <div class="next-race-card">
-            <div class="f1-card-header"><i class="fas fa-calendar-alt"></i>Próxima Corrida</div>
-            <div style="font-size:1.2rem;font-weight:700">Grande Prêmio Test</div>
-            <div style="color:var(--f1-silver);font-size:0.85rem;margin-top:4px"><i class="fas fa-map-marker-alt me-1"></i>Circuito de Demonstração</div>
-            <div class="countdown-display">
-              <div class="countdown-unit"><div class="countdown-num" id="cd-days">00</div><div class="countdown-lbl">Dias</div></div>
-              <div style="color:var(--f1-red);font-size:2rem;align-self:flex-start;margin-top:2px">:</div>
-              <div class="countdown-unit"><div class="countdown-num" id="cd-hours">00</div><div class="countdown-lbl">Horas</div></div>
-              <div style="color:var(--f1-red);font-size:2rem;align-self:flex-start;margin-top:2px">:</div>
-              <div class="countdown-unit"><div class="countdown-num" id="cd-mins">00</div><div class="countdown-lbl">Min</div></div>
-              <div style="color:var(--f1-red);font-size:2rem;align-self:flex-start;margin-top:2px">:</div>
-              <div class="countdown-unit"><div class="countdown-num" id="cd-secs">00</div><div class="countdown-lbl">Seg</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Top 3 rápido -->
-        <div class="col-lg-7">
-          <div class="f1-card h-100">
-            <div class="f1-card-header"><i class="fas fa-trophy"></i>Pódio Atual</div>
-            <div id="homeTop3">
-              <div class="empty-state" style="padding:1.5rem"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick links -->
-      <div class="row g-3 mt-2">
-        <div class="col-md-4">
-          <div class="f1-card" style="cursor:pointer" onclick="navigateTo('competidores')">
-            <div class="d-flex align-items-center gap-3">
-              <div style="width:50px;height:50px;border-radius:10px;background:rgba(225,6,0,0.1);border:1px solid rgba(225,6,0,0.2);display:flex;align-items:center;justify-content:center">
-                <i class="fas fa-user-plus" style="color:var(--f1-red);font-size:1.3rem"></i>
-              </div>
-              <div>
-                <div style="font-weight:700">Gerenciar Pilotos</div>
-                <div style="font-size:0.75rem;color:var(--f1-silver)">Adicionar, editar e remover</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="f1-card" style="cursor:pointer" onclick="navigateTo('cronometragem')">
-            <div class="d-flex align-items-center gap-3">
-              <div style="width:50px;height:50px;border-radius:10px;background:rgba(225,6,0,0.1);border:1px solid rgba(225,6,0,0.2);display:flex;align-items:center;justify-content:center">
-                <i class="fas fa-clock" style="color:var(--f1-red);font-size:1.3rem"></i>
-              </div>
-              <div>
-                <div style="font-weight:700">Cronometrar</div>
-                <div style="font-size:0.75rem;color:var(--f1-silver)">Registrar tempos de volta</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="f1-card" style="cursor:pointer" onclick="navigateTo('grid')">
-            <div class="d-flex align-items-center gap-3">
-              <div style="width:50px;height:50px;border-radius:10px;background:rgba(225,6,0,0.1);border:1px solid rgba(225,6,0,0.2);display:flex;align-items:center;justify-content:center">
-                <i class="fas fa-th-list" style="color:var(--f1-red);font-size:1.3rem"></i>
-              </div>
-              <div>
-                <div style="font-weight:700">Grid de Largada</div>
-                <div style="font-size:0.75rem;color:var(--f1-silver)">Organizar posições</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ==============================
-       PÁGINA: COMPETIDORES
-  ============================== -->
-  <div id="competidores" class="page">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div class="section-title mb-0"><i class="fas fa-users text-red"></i>Pilotos</div>
-        <button class="btn-f1" onclick="CompetidoresModule.showForm()">
-          <i class="fas fa-plus me-2"></i>Novo Piloto
-        </button>
-      </div>
-
-      <!-- Busca -->
-      <div class="row mb-4">
-        <div class="col-md-6">
-          <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" class="form-control f1-input" placeholder="Buscar piloto ou equipe..."
-              oninput="CompetidoresModule.onSearch(this.value)">
-          </div>
-        </div>
-        <div class="col-md-6 d-flex align-items-center">
-          <span id="totalPilotosCount" style="font-family:var(--font-mono);color:var(--f1-silver);font-size:0.85rem">0</span>
-          <span style="color:var(--f1-silver);font-size:0.85rem;margin-left:6px">pilotos cadastrados</span>
-        </div>
-      </div>
-
-      <!-- Lista -->
-      <div id="competidoresList">
-        <div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==============================
-       PÁGINA: CRONOMETRAGEM
-  ============================== -->
-  <div id="cronometragem" class="page">
-    <div class="container">
-      <div class="section-title mb-4"><i class="fas fa-stopwatch text-red"></i>Cronometragem</div>
-
-      <div class="row g-4">
-
-        <!-- 🔴 CRONÔMETRO (FULL WIDTH) -->
-        <div class="col-12">
-          <div class="f1-card timer-big">
-            <div class="f1-card-header">
-              <i class="fas fa-clock"></i>Cronômetro ao Vivo
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Piloto</label>
-              <select id="timerPilot" class="form-select f1-input">
-                <option value="">Selecione um piloto...</option>
-              </select>
-            </div>
-
-            <div class="timer-display big" id="timerDisplay">00:00.000</div>
-
-            <div class="d-flex justify-content-center gap-3 mt-4">
-              <button class="btn-f1 px-5" id="timerBtn" onclick="CronometragemModule.toggleTimer()">
-                <i class="fas fa-play me-2"></i>INICIAR
-              </button>
-              <button class="btn-f1-outline px-4" onclick="CronometragemModule.resetTimer()">
-                <i class="fas fa-redo"></i>
-              </button>
-            </div>
-
-            <button class="btn-f1 w-100 mt-4" id="registerVoltaBtn" disabled onclick="CronometragemModule.registrarVolta()">
-              <i class="fas fa-flag-checkered me-2"></i>REGISTRAR VOLTA
-            </button>
-          </div>
-        </div>
-
-        <!-- 🔽 LINHA DE BAIXO -->
-        <div class="col-lg-6">
-          <!-- INSERÇÃO -->
-          <div class="f1-card">
-            <div class="f1-card-header">
-              <i class="fas fa-keyboard"></i>Inserção Manual
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Piloto</label>
-              <select id="manualPilot" class="form-select f1-input">
-                <option value="">Selecione um piloto...</option>
-              </select>
-            </div>
-
-            <div class="row g-2 mb-3">
-              <div class="col-6">
-                <label class="form-label">Minutos</label>
-                <input type="number" id="manualMin" class="form-control f1-input">
-              </div>
-              <div class="col-6">
-                <label class="form-label">Segundos</label>
-                <input type="number" id="manualSeg" class="form-control f1-input" step="0.001">
-              </div>
-            </div>
-
-            <button class="btn-f1 w-100" id="manualSaveBtn" onclick="CronometragemModule.registrarManual()">
-              <i class="fas fa-save me-2"></i>SALVAR TEMPO
-            </button>
-          </div>
-        </div>
-
-        <!-- HISTÓRICO -->
-        <div class="col-lg-6">
-          <div class="f1-card historico-card">
-            <div class="f1-card-header">
-              <i class="fas fa-history"></i>Histórico de Voltas
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Selecione o Piloto</label>
-              <select id="histPilot" class="form-select f1-input"
-                onchange="CronometragemModule.carregarHistorico(this.value)">
-                <option value="">Selecione um piloto...</option>
-              </select>
-            </div>
-
-            <div id="voltasStats"></div>
-
-            <div id="voltasHistorico" class="historico-scroll">
-              <div class="empty-state">
-                <i class="fas fa-flag-checkered"></i>
-                <p>Selecione um piloto</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ==============================
-       PÁGINA: GRID
-  ============================== -->
-  <div id="grid" class="page">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div class="section-title mb-0"><i class="fas fa-th-list text-red"></i>Grid de Largada</div>
-        <div class="d-flex gap-2">
-          <button class="btn-f1-outline" onclick="GridModule.carregar()"><i class="fas fa-sync me-2"></i>Recarregar</button>
-          <button class="btn-f1" id="saveGridBtn" onclick="GridModule.salvar()"><i class="fas fa-save me-2"></i>SALVAR GRID</button>
-        </div>
-      </div>
-
-      <div class="f1-card mb-3">
-        <div style="display:flex;align-items:center;gap:12px;color:var(--f1-silver);font-size:0.85rem">
-          <i class="fas fa-info-circle text-red"></i>
-          Arraste e solte os pilotos para reorganizar o grid de largada.
-        </div>
-      </div>
-
-      <div id="gridContainer">
-        <div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==============================
-       PÁGINA: RANKING
-  ============================== -->
-  <div id="ranking" class="page">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div class="section-title mb-0"><i class="fas fa-trophy text-red"></i>Ranking & Resultados</div>
-        <button class="btn-f1-outline" onclick="RankingModule.carregar()"><i class="fas fa-sync me-2"></i>Atualizar</button>
-      </div>
-
-      <!-- Destaques -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <div class="f1-card" style="border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.03)">
-            <div class="d-flex align-items-center gap-3">
-              <div style="font-size:2.5rem">🥇</div>
-              <div>
-                <div style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--f1-gold);margin-bottom:4px">Líder</div>
-                <div style="font-weight:700;font-size:1.1rem" id="liderNome">—</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="f1-card" style="border-color:rgba(225,6,0,0.3)">
-            <div class="d-flex align-items-center gap-3">
-              <div style="font-size:2.5rem">⚡</div>
-              <div>
-                <div style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--f1-red);margin-bottom:4px">Melhor Volta Global</div>
-                <div style="font-family:var(--font-mono);font-size:1.3rem;color:var(--f1-red)" id="melhorVoltaGlobal">—</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tabela -->
-      <div class="f1-card p-0" style="overflow:hidden">
-        <div style="overflow-x:auto">
-          <table class="f1-table">
-            <thead>
-              <tr>
-                <th class="text-center">POS</th>
-                <th>PILOTO</th>
-                <th>EQUIPE</th>
-                <th>MELHOR VOLTA</th>
-                <th>MÉDIA</th>
-                <th>VOLTAS</th>
-              </tr>
-            </thead>
-            <tbody id="rankingTable">
-              <tr><td colspan="6"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-</div><!-- /#app -->
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Scripts da Aplicação -->
-<script src="js/api.js"></script>
-<script src="js/competidores.js"></script>
-<script src="js/cronometragem.js"></script>
-<script src="js/grid-ranking.js"></script>
-
-<script>
-// ============================================
-// INICIALIZAÇÃO PRINCIPAL
-// ============================================
-async function navigateTo(pageId) {
-  navigate(pageId);
-  switch (pageId) {
-    case 'competidores':
-      await CompetidoresModule.carregar();
-      break;
-    case 'cronometragem':
-      await CronometragemModule.init();
-      await CronometragemModule.initHistorico();
-      break;
-    case 'grid':
-      await GridModule.carregar();
-      break;
-    case 'ranking':
-      await RankingModule.carregar();
-      break;
-    case 'home':
-      await carregarHome();
-      break;
-  }
-}
-
-async function carregarHome() {
-  try {
-    const [compRes, voltasRes, rankingRes] = await Promise.all([
-      API.competidores.listar(),
-      API.voltas.listar(),
-      API.ranking.get()
-    ]);
-
-    // Stats
-    const stats = document.getElementById('statPilotos');
-    if (stats) animateCounter(stats, compRes.data.length);
-
-    const voltasStat = document.getElementById('statVoltas');
-    if (voltasStat) animateCounter(voltasStat, voltasRes.data.length);
-
-    const equipes = new Set(compRes.data.map(c => c.equipe));
-    const equipesStat = document.getElementById('statEquipes');
-    if (equipesStat) animateCounter(equipesStat, equipes.size);
-
-    if (rankingRes.data.length && rankingRes.data[0].melhor_volta) {
-      const el = document.getElementById('statMelhorVolta');
-      if (el) el.textContent = formatTime(rankingRes.data[0].melhor_volta);
+    /* ---- Variáveis ---- */
+    :root {
+      --f1-red: #E10600;
+      --f1-red-dark: #a00400;
+      --f1-black: #15151E;
+      --f1-dark: #1a1a28;
+      --f1-card: #1e1e2e;
+      --f1-border: #2b2b3d;
+      --f1-gray: #2B2B2B;
+      --f1-white: #FFFFFF;
+      --f1-silver: #b0b0c0;
+      --f1-gold: #FFD700;
+      --f1-silver-medal: #C0C0C0;
+      --f1-bronze: #CD7F32;
+      --f1-neon: rgba(225, 6, 0, 0.6);
+      --font-title: 'Russo One', sans-serif;
+      --font-body: 'Exo 2', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow-red: 0 0 20px rgba(225, 6, 0, 0.4);
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
 
-    // Top 3
-    const top3 = rankingRes.data.slice(0, 3);
-    const top3El = document.getElementById('homeTop3');
-    if (!top3.length) {
-      top3El.innerHTML = '<div class="empty-state" style="padding:1rem"><i class="fas fa-trophy"></i><p>Sem dados ainda</p></div>';
-    } else {
-      const medals = ['🥇', '🥈', '🥉'];
-      const medalColors = ['var(--f1-gold)', 'var(--f1-silver-medal)', 'var(--f1-bronze)'];
-      top3El.innerHTML = top3.map((p, i) => `
+    /* ---- Reset & Base ---- */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--f1-black);
+      color: var(--f1-white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ---- Cursor Personalizado ---- */
+    .cursor {
+      width: 12px;
+      height: 12px;
+      background: var(--f1-red);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+      box-shadow: 0 0 10px var(--f1-red), 0 0 20px rgba(225, 6, 0, 0.3);
+    }
+
+    .cursor-trail {
+      width: 30px;
+      height: 30px;
+      border: 1px solid rgba(225, 6, 0, 0.4);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.15s ease;
+    }
+
+    body:has(a:hover) .cursor,
+    body:has(button:hover) .cursor {
+      width: 20px;
+      height: 20px;
+      background: var(--f1-white);
+    }
+
+    /* ---- Background Animado com Partículas ---- */
+    #particles-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ---- Faixa de Velocidade (speed lines) ---- */
+    .speed-lines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .speed-line {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(225, 6, 0, 0.15), transparent);
+      animation: speedLine 3s linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes speedLine {
+      0% {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: translateX(200%);
+        opacity: 0;
+      }
+    }
+
+    /* ---- Layout Principal ---- */
+    #app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+    }
+
+    /* ---- Navbar ---- */
+    .f1-navbar {
+      background: linear-gradient(180deg, rgba(21, 21, 30, 0.98) 0%, rgba(21, 21, 30, 0.9) 100%);
+      border-bottom: 2px solid var(--f1-red);
+      backdrop-filter: blur(20px);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 30px rgba(225, 6, 0, 0.2);
+    }
+
+    .f1-navbar .navbar-brand {
+      font-family: var(--font-title);
+      font-size: 1.4rem;
+      color: var(--f1-white) !important;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .f1-navbar .navbar-brand span {
+      color: var(--f1-red);
+    }
+
+    .f1-navbar .nav-link {
+      color: var(--f1-silver) !important;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 1.2rem 1rem !important;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .f1-navbar .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      right: 50%;
+      height: 2px;
+      background: var(--f1-red);
+      transition: var(--transition);
+    }
+
+    .f1-navbar .nav-link:hover,
+    .f1-navbar .nav-link.active {
+      color: var(--f1-white) !important;
+    }
+
+    .f1-navbar .nav-link:hover::after,
+    .f1-navbar .nav-link.active::after {
+      left: 0;
+      right: 0;
+    }
+
+    /* ---- Containers de Página ---- */
+    .page {
+      display: none;
+      padding: 2rem 0;
+      animation: fadeInUp 0.4s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---- Hero Banner ---- */
+    .hero-banner {
+      background: linear-gradient(135deg, var(--f1-black) 0%, #1a0005 50%, var(--f1-black) 100%);
+      border: 1px solid var(--f1-border);
+      border-left: 4px solid var(--f1-red);
+      border-radius: 12px;
+      padding: 3rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::before {
+      content: 'F1';
+      position: absolute;
+      right: -20px;
+      top: -30px;
+      font-family: var(--font-title);
+      font-size: 12rem;
+      color: rgba(225, 6, 0, 0.04);
+      pointer-events: none;
+    }
+
+    .hero-banner h1 {
+      font-family: var(--font-title);
+      font-size: 3rem;
+      background: linear-gradient(135deg, #fff 0%, #e10600 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--f1-red);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 1rem;
+    }
+
+    /* ---- Stat Cards ---- */
+    .stat-card {
+      background: var(--f1-card);
+      border: 1px solid var(--f1-border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--f1-red), transparent);
+    }
+
+    .stat-card:hover {
+      border-color: var(--f1-red);
+      box-shadow: var(--shadow-red);
+      transform: translateY(-4px);
+    }
+
+    .stat-number {
+      font-family: var(--font-title);
+      font-size: 2.5rem;
+      color: var(--f1-red);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--f1-silver);
+      margin-top: 0.5rem;
+    }
+
+    /* ---- F1 Cards ---- */
+    .f1-card {
+      background: var(--f1-card);
+      border: 1px solid var(--f1-border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .f1-card:hover {
+      border-color: rgba(225, 6, 0, 0.5);
+      box-shadow: var(--shadow-card);
+    }
+
+    .f1-card-header {
+      font-family: var(--font-title);
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--f1-red);
+      border-bottom: 1px solid var(--f1-border);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ---- Piloto Card ---- */
+    .pilot-card {
+      background: var(--f1-card);
+      border: 1px solid var(--f1-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pilot-card::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--f1-red);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+      transform-origin: bottom;
+    }
+
+    .pilot-card:hover {
+      border-color: rgba(225, 6, 0, 0.4);
+      transform: translateX(4px);
+      box-shadow: var(--shadow-card);
+    }
+
+    .pilot-card:hover::after {
+      transform: scaleY(1);
+    }
+
+    .pilot-number {
+      font-family: var(--font-title);
+      font-size: 2rem;
+      color: rgba(225, 6, 0, 0.3);
+      position: absolute;
+      right: 1rem;
+      top: 0.5rem;
+    }
+
+    .pilot-name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 2px;
+    }
+
+    .pilot-team {
+      font-size: 0.8rem;
+      color: var(--f1-silver);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ---- Formulários ---- */
+    .f1-input {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid var(--f1-border) !important;
+      color: var(--f1-white) !important;
+      border-radius: 6px !important;
+      font-family: var(--font-body) !important;
+      transition: var(--transition) !important;
+    }
+
+    .f1-input:focus {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: var(--f1-red) !important;
+      box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.15) !important;
+      color: var(--f1-white) !important;
+    }
+
+    .f1-input::placeholder {
+      color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    .f1-input option {
+      background: var(--f1-card);
+      color: var(--f1-white);
+    }
+
+    .form-label {
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--f1-silver);
+      margin-bottom: 0.4rem;
+    }
+
+    /* ---- Botões ---- */
+    .btn-f1 {
+      background: var(--f1-red);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 10px 24px;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-f1::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+
+    .btn-f1:hover {
+      background: var(--f1-red-dark);
+      box-shadow: var(--shadow-red);
+      transform: translateY(-1px);
+      color: white;
+    }
+
+    .btn-f1:hover::after {
+      width: 200px;
+      height: 200px;
+    }
+
+    .btn-f1:active {
+      transform: translateY(0);
+    }
+
+    .btn-f1-outline {
+      background: transparent;
+      color: var(--f1-red);
+      border: 1px solid var(--f1-red);
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-f1-outline:hover {
+      background: var(--f1-red);
+      color: white;
+      box-shadow: var(--shadow-red);
+    }
+
+    .btn-danger-f1 {
+      background: transparent;
+      color: #ff4444;
+      border: 1px solid #ff4444;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-danger-f1:hover {
+      background: #ff4444;
+      color: white;
+    }
+
+    /* ---- Tabelas ---- */
+    .f1-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .f1-table thead tr {
+      background: rgba(225, 6, 0, 0.1);
+      border-bottom: 1px solid var(--f1-red);
+    }
+
+    .f1-table th {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--f1-red);
+      padding: 12px 16px;
+      font-weight: 600;
+    }
+
+    .f1-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--f1-border);
+      font-size: 0.9rem;
+    }
+
+    .f1-table tbody tr {
+      transition: background 0.2s;
+    }
+
+    .f1-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* ---- Ranking Posições ---- */
+    .pos-medal {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .pos-1 {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #000;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+    }
+
+    .pos-2 {
+      background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+      color: #000;
+    }
+
+    .pos-3 {
+      background: linear-gradient(135deg, #CD7F32, #A0522D);
+      color: #fff;
+    }
+
+    .pos-n {
+      background: var(--f1-border);
+      color: var(--f1-silver);
+    }
+
+    /* ---- Timer / Cronômetro ---- */
+    .timer-display {
+      font-family: var(--font-mono);
+      font-size: 3rem;
+      color: var(--f1-red);
+      text-align: center;
+      background: rgba(225, 6, 0, 0.05);
+      border: 1px solid rgba(225, 6, 0, 0.2);
+      border-radius: 10px;
+      padding: 1.5rem;
+      letter-spacing: 4px;
+      text-shadow: 0 0 20px rgba(225, 6, 0, 0.5);
+      margin-bottom: 1rem;
+    }
+
+    .timing-stat {
+      background: var(--f1-card);
+      border: 1px solid var(--f1-border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .timing-stat:hover {
+      border-color: rgba(225, 6, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(225, 6, 0, 0.1);
+    }
+
+    .timing-stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      color: var(--f1-red);
+      margin-bottom: 0.25rem;
+    }
+
+    .timing-stat-lbl {
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--f1-silver);
+      line-height: 1.3;
+    }
+
+    /* ---- Grid de Largada ---- */
+    .grid-track {
+      background: repeating-linear-gradient(90deg,
+          rgba(255, 255, 255, 0.02) 0px,
+          rgba(255, 255, 255, 0.02) 1px,
+          transparent 1px,
+          transparent 40px);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .grid-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--f1-card);
+      border: 1px solid var(--f1-border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      cursor: grab;
+      transition: var(--transition);
+    }
+
+    .grid-row:hover {
+      border-color: rgba(225, 6, 0, 0.3);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .grid-row.dragging {
+      opacity: 0.5;
+      border-color: var(--f1-red);
+      box-shadow: var(--shadow-red);
+      cursor: grabbing;
+    }
+
+    .grid-row.drag-over {
+      border-color: var(--f1-red);
+      background: rgba(225, 6, 0, 0.1);
+    }
+
+    .grid-pos {
+      font-family: var(--font-title);
+      font-size: 1.2rem;
+      color: var(--f1-red);
+      width: 40px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .grid-indicator {
+      display: flex;
+      gap: 4px;
+    }
+
+    .grid-light {
+      width: 14px;
+      height: 14px;
+      background: rgba(255, 50, 0, 0.2);
+      border: 1px solid rgba(255, 50, 0, 0.4);
+      border-radius: 50%;
+      transition: background 0.3s;
+    }
+
+    .grid-light.on {
+      background: var(--f1-red);
+      box-shadow: 0 0 8px rgba(225, 6, 0, 0.8);
+    }
+
+    /* ---- Barra de Busca ---- */
+    .search-bar {
+      position: relative;
+    }
+
+    .search-bar i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--f1-silver);
+      pointer-events: none;
+    }
+
+    .search-bar input {
+      padding-left: 42px !important;
+    }
+
+    /* ---- Toasts ---- */
+    .toast-container {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 5000;
+    }
+
+    .f1-toast {
+      background: var(--f1-card);
+      border: 1px solid var(--f1-border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.5rem;
+      min-width: 280px;
+      animation: slideInRight 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .f1-toast.success {
+      border-left: 3px solid #00ff88;
+    }
+
+    .f1-toast.error {
+      border-left: 3px solid var(--f1-red);
+    }
+
+    .f1-toast.info {
+      border-left: 3px solid #4488ff;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+    }
+
+    /* ---- Loading ---- */
+    .f1-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--f1-black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9990;
+      transition: opacity 0.5s ease;
+    }
+
+    .f1-loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader-logo {
+      font-family: var(--font-title);
+      font-size: 4rem;
+      color: var(--f1-red);
+      letter-spacing: 8px;
+      text-shadow: 0 0 40px rgba(225, 6, 0, 0.7);
+      animation: pulse 1.5s ease infinite;
+    }
+
+    .loader-bar {
+      width: 200px;
+      height: 3px;
+      background: var(--f1-border);
+      border-radius: 3px;
+      margin-top: 2rem;
+      overflow: hidden;
+    }
+
+    .loader-bar-fill {
+      height: 100%;
+      background: var(--f1-red);
+      border-radius: 3px;
+      animation: loading 1.5s ease infinite;
+    }
+
+    @keyframes loading {
+      0% {
+        width: 0;
+        margin-left: 0;
+      }
+
+      50% {
+        width: 60%;
+        margin-left: 20%;
+      }
+
+      100% {
+        width: 0;
+        margin-left: 100%;
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        text-shadow: 0 0 20px rgba(225, 6, 0, 0.5);
+      }
+
+      50% {
+        text-shadow: 0 0 60px rgba(225, 6, 0, 1), 0 0 100px rgba(225, 6, 0, 0.3);
+      }
+    }
+
+    /* ---- Modal de Confirmação ---- */
+    .f1-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 4000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .f1-modal-overlay.show {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .f1-modal {
+      background: var(--f1-card);
+      border: 1px solid var(--f1-border);
+      border-top: 3px solid var(--f1-red);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 90%;
+      animation: scaleIn 0.3s ease;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0.85);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .f1-modal h5 {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .f1-modal p {
+      color: var(--f1-silver);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ---- Section Titles ---- */
+    .section-title {
+      font-family: var(--font-title);
+      font-size: 1.5rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--f1-red), transparent);
+    }
+
+    /* ---- Badges de Equipe ---- */
+    .team-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--f1-silver);
+    }
+
+    /* ---- Histórico de Voltas ---- */
+    .volta-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--f1-border);
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .volta-item:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .volta-time {
+      font-family: var(--font-mono);
+      color: var(--f1-red);
+      font-size: 1rem;
+    }
+
+    .volta-best {
+      color: var(--f1-gold) !important;
+    }
+
+    /* ---- Next Race Card ---- */
+    .next-race-card {
+      background: linear-gradient(135deg, rgba(225, 6, 0, 0.1), rgba(225, 6, 0, 0.02));
+      border: 1px solid rgba(225, 6, 0, 0.3);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+
+    .countdown-display {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .countdown-unit {
+      text-align: center;
+    }
+
+    .countdown-num {
+      font-family: var(--font-title);
+      font-size: 2rem;
+      color: var(--f1-red);
+      line-height: 1;
+    }
+
+    .countdown-lbl {
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--f1-silver);
+    }
+
+    /* ---- Scrollbar ---- */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--f1-black);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--f1-red);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--f1-red-dark);
+    }
+
+    /* ---- Utilidades ---- */
+    .text-red {
+      color: var(--f1-red) !important;
+    }
+
+    .text-silver {
+      color: var(--f1-silver) !important;
+    }
+
+    .text-mono {
+      font-family: var(--font-mono);
+    }
+
+    .border-red {
+      border-color: var(--f1-red) !important;
+    }
+
+    .bg-card {
+      background: var(--f1-card) !important;
+    }
+
+    .rounded-f1 {
+      border-radius: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--f1-silver);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--f1-border);
+      margin-bottom: 1rem;
+    }
+
+    /* ---- Cronômetro Grande ---- */
+    .timer-big {
+      padding: 2.5rem;
+    }
+
+    .timer-display.big {
+      font-size: 6rem;
+      padding: 3rem;
+      letter-spacing: 8px;
+      border-radius: 14px;
+    }
+
+    .timer-big .timer-display {
+      margin-top: 1rem;
+    }
+
+    .timer-big .btn-f1 {
+      font-size: 1rem;
+      padding: 14px 40px;
+    }
+
+    .historico-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .historico-scroll {
+      max-height: 350px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    /* ---- Gráfico de Velocidades ---- */
+    #velocidadeChart {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25em 0.6em;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+    }
+
+    /* ---- Responsividade ---- */
+    @media (max-width: 768px) {
+      .hero-banner h1 {
+        font-size: 2rem;
+      }
+
+      .timer-display {
+        font-size: 2rem;
+      }
+
+      .stat-number {
+        font-size: 1.8rem;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+      }
+
+      .cursor,
+      .cursor-trail {
+        display: none;
+      }
+
+      body {
+        cursor: auto;
+      }
+
+      .timer-display.big {
+        font-size: 3rem;
+        padding: 1.5rem;
+      }
+
+      #velocidadeChart {
+        height: 300px !important;
+      }
+
+      .timing-stat-val {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== CURSOR PERSONALIZADO ===== -->
+  <div class="cursor"></div>
+  <div class="cursor-trail"></div>
+
+  <!-- ===== BACKGROUND ANIMADO ===== -->
+  <canvas id="particles-canvas"></canvas>
+  <div class="speed-lines"></div>
+
+  <!-- ===== LOADER ===== -->
+  <div class="f1-loader" id="loader">
+    <div class="loader-logo">F1</div>
+    <div class="loader-text">Championship</div>
+    <div class="loader-bar">
+      <div class="loader-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST CONTAINER ===== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ===== MODAL DE CONFIRMAÇÃO ===== -->
+  <div class="f1-modal-overlay" id="confirmModal">
+    <div class="f1-modal">
+      <h5 id="confirmTitle" class="text-red"></h5>
+      <p id="confirmMessage"></p>
+      <div class="d-flex gap-3 justify-content-end">
+        <button class="btn-f1-outline" id="confirmNo">CANCELAR</button>
+        <button class="btn-f1" id="confirmYes" style="background:#ff4444">CONFIRMAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL PILOTO ===== -->
+  <div class="f1-modal-overlay" id="pilotModal">
+    <div class="f1-modal" style="max-width:520px">
+      <h5 id="pilotModalTitle" class="text-red">NOVO PILOTO</h5>
+      <form id="pilotForm" autocomplete="off">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Nome do Piloto *</label>
+            <input type="text" id="pilotNome" class="form-control f1-input" placeholder="Ex: Max Verstappen">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Equipe *</label>
+            <input type="text" id="pilotEquipe" class="form-control f1-input" placeholder="Ex: Red Bull Racing">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Número do Carro *</label>
+            <input type="number" id="pilotNumero" class="form-control f1-input" placeholder="Ex: 1" min="1" max="99">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Sala</label>
+            <input type="text" id="pilotNac" class="form-control f1-input" placeholder="Ex: Holandês">
+          </div>
+        </div>
+        <div class="d-flex gap-3 justify-content-end mt-4">
+          <button type="button" class="btn-f1-outline" onclick="CompetidoresModule.hideForm()">CANCELAR</button>
+          <button type="button" class="btn-f1" id="pilotSaveBtn" onclick="CompetidoresModule.salvar()">SALVAR</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div id="app">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg f1-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="#" onclick="navigate('home')">
+          <i class="fas fa-flag-checkered" style="color:var(--f1-red)"></i>
+          F1 <span>CHAMPIONSHIP</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
+          title="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link active" href="#" data-page="home"
+                onclick="navigate('home');return false"><i class="fas fa-home me-1"></i>Início</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-page="competidores"
+                onclick="navigateTo('competidores');return false"><i class="fas fa-users me-1"></i>Pilotos</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-page="cronometragem"
+                onclick="navigateTo('cronometragem');return false"><i class="fas fa-stopwatch me-1"></i>Cronometro</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#" data-page="grid"
+                onclick="navigateTo('grid');return false"><i class="fas fa-th-list me-1"></i>Grid</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-page="ranking"
+                onclick="navigateTo('ranking');return false"><i class="fas fa-trophy me-1"></i>Ranking</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-page="tabela"
+                onclick="navigateTo('tabela');return false"><i class="fas fa-chart-line me-1"></i>Tabela</a></li>
+          </ul>
+          <!-- Config de API URL -->
+          <div class="ms-3 d-none d-lg-flex align-items-center gap-2">
+            <div style="position:relative">
+              <input type="text" id="apiUrlInput" class="form-control f1-input" placeholder="http://localhost:3001"
+                style="font-size:0.75rem;padding:6px 12px;width:200px" value="http://localhost:3001">
+            </div>
+            <button class="btn-f1-outline" title="Update API URL" onclick="updateApiUrl()">
+              <i class="fas fa-plug"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ==============================
+       PÁGINA: HOME
+  ============================== -->
+    <div id="home" class="page active">
+      <div class="container">
+
+        <!-- Hero -->
+        <div class="hero-banner mb-4">
+          <div class="hero-badge">🏎️ Temporada 2026</div>
+          <h1>F1 Championship</h1>
+          <p style="color:var(--f1-silver);max-width:560px;line-height:1.7">
+            Gerencie pilotos, registre tempos de volta, organize o grid de largada e acompanhe o ranking em tempo real.
+          </p>
+          <div class="d-flex gap-3 mt-3 flex-wrap">
+            <button class="btn-f1" onclick="navigateTo('competidores')"><i class="fas fa-users me-2"></i>Ver
+              Pilotos</button>
+            <button class="btn-f1-outline" onclick="navigateTo('ranking')"><i class="fas fa-trophy me-2"></i>Ver
+              Ranking</button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-number" id="statPilotos">—</div>
+              <div class="stat-label"><i class="fas fa-users me-1"></i>Pilotos</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-number" id="statVoltas">—</div>
+              <div class="stat-label"><i class="fas fa-stopwatch me-1"></i>Voltas</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-number" id="statEquipes">—</div>
+              <div class="stat-label"><i class="fas fa-flag me-1"></i>Equipes</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-number text-mono" id="statMelhorVolta" style="font-size:1.4rem">—</div>
+              <div class="stat-label"><i class="fas fa-bolt me-1"></i>Melhor Volta</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Próxima corrida -->
+          <div class="col-lg-5">
+            <div class="next-race-card">
+              <div class="f1-card-header"><i class="fas fa-calendar-alt"></i>Próxima Corrida</div>
+              <div style="font-size:1.2rem;font-weight:700">Grande Prêmio Test</div>
+              <div style="color:var(--f1-silver);font-size:0.85rem;margin-top:4px"><i
+                  class="fas fa-map-marker-alt me-1"></i>Circuito de Demonstração</div>
+              <div class="countdown-display">
+                <div class="countdown-unit">
+                  <div class="countdown-num" id="cd-days">00</div>
+                  <div class="countdown-lbl">Dias</div>
+                </div>
+                <div style="color:var(--f1-red);font-size:2rem;align-self:flex-start;margin-top:2px">:</div>
+                <div class="countdown-unit">
+                  <div class="countdown-num" id="cd-hours">00</div>
+                  <div class="countdown-lbl">Horas</div>
+                </div>
+                <div style="color:var(--f1-red);font-size:2rem;align-self:flex-start;margin-top:2px">:</div>
+                <div class="countdown-unit">
+                  <div class="countdown-num" id="cd-mins">00</div>
+                  <div class="countdown-lbl">Min</div>
+                </div>
+                <div style="color:var(--f1-red);font-size:2rem;align-self:flex-start;margin-top:2px">:</div>
+                <div class="countdown-unit">
+                  <div class="countdown-num" id="cd-secs">00</div>
+                  <div class="countdown-lbl">Seg</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top 3 rápido -->
+          <div class="col-lg-7">
+            <div class="f1-card h-100">
+              <div class="f1-card-header"><i class="fas fa-trophy"></i>Pódio Atual</div>
+              <div id="homeTop3">
+                <div class="empty-state" style="padding:1.5rem"><i class="fas fa-spinner fa-spin"></i>
+                  <p>Carregando...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick links -->
+        <div class="row g-3 mt-2">
+          <div class="col-md-4">
+            <div class="f1-card" style="cursor:pointer" onclick="navigateTo('competidores')">
+              <div class="d-flex align-items-center gap-3">
+                <div
+                  style="width:50px;height:50px;border-radius:10px;background:rgba(225,6,0,0.1);border:1px solid rgba(225,6,0,0.2);display:flex;align-items:center;justify-content:center">
+                  <i class="fas fa-user-plus" style="color:var(--f1-red);font-size:1.3rem"></i>
+                </div>
+                <div>
+                  <div style="font-weight:700">Gerenciar Pilotos</div>
+                  <div style="font-size:0.75rem;color:var(--f1-silver)">Adicionar, editar e remover</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="f1-card" style="cursor:pointer" onclick="navigateTo('cronometragem')">
+              <div class="d-flex align-items-center gap-3">
+                <div
+                  style="width:50px;height:50px;border-radius:10px;background:rgba(225,6,0,0.1);border:1px solid rgba(225,6,0,0.2);display:flex;align-items:center;justify-content:center">
+                  <i class="fas fa-clock" style="color:var(--f1-red);font-size:1.3rem"></i>
+                </div>
+                <div>
+                  <div style="font-weight:700">Cronometrar</div>
+                  <div style="font-size:0.75rem;color:var(--f1-silver)">Registrar tempos de volta</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="f1-card" style="cursor:pointer" onclick="navigateTo('grid')">
+              <div class="d-flex align-items-center gap-3">
+                <div
+                  style="width:50px;height:50px;border-radius:10px;background:rgba(225,6,0,0.1);border:1px solid rgba(225,6,0,0.2);display:flex;align-items:center;justify-content:center">
+                  <i class="fas fa-th-list" style="color:var(--f1-red);font-size:1.3rem"></i>
+                </div>
+                <div>
+                  <div style="font-weight:700">Grid de Largada</div>
+                  <div style="font-size:0.75rem;color:var(--f1-silver)">Organizar posições</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==============================
+       PÁGINA: COMPETIDORES
+  ============================== -->
+    <div id="competidores" class="page">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <div class="section-title mb-0"><i class="fas fa-users text-red"></i>Pilotos</div>
+          <button class="btn-f1" onclick="CompetidoresModule.showForm()">
+            <i class="fas fa-plus me-2"></i>Novo Piloto
+          </button>
+        </div>
+
+        <!-- Busca -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="search-bar">
+              <i class="fas fa-search"></i>
+              <input type="text" class="form-control f1-input" placeholder="Buscar piloto ou equipe..."
+                oninput="CompetidoresModule.onSearch(this.value)">
+            </div>
+          </div>
+          <div class="col-md-6 d-flex align-items-center">
+            <span id="totalPilotosCount"
+              style="font-family:var(--font-mono);color:var(--f1-silver);font-size:0.85rem">0</span>
+            <span style="color:var(--f1-silver);font-size:0.85rem;margin-left:6px">pilotos cadastrados</span>
+          </div>
+        </div>
+
+        <!-- Lista -->
+        <div id="competidoresList">
+          <div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================
+       PÁGINA: CRONOMETRAGEM
+  ============================== -->
+    <div id="cronometragem" class="page">
+      <div class="container">
+        <div class="section-title mb-4"><i class="fas fa-stopwatch text-red"></i>Cronometragem</div>
+
+        <div class="row g-4">
+
+          <!-- 🔴 CRONÔMETRO (FULL WIDTH) -->
+          <div class="col-12">
+            <div class="f1-card timer-big">
+              <div class="f1-card-header">
+                <i class="fas fa-clock"></i>Cronômetro ao Vivo
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Piloto</label>
+                <select id="timerPilot" class="form-select f1-input">
+                  <option value="">Selecione um piloto...</option>
+                </select>
+              </div>
+
+              <div class="timer-display big" id="timerDisplay">00:00.000</div>
+
+              <div class="d-flex justify-content-center gap-3 mt-4">
+                <button class="btn-f1 px-5" id="timerBtn" onclick="CronometragemModule.toggleTimer()">
+                  <i class="fas fa-play me-2"></i>INICIAR
+                </button>
+                <button class="btn-f1-outline px-4" onclick="CronometragemModule.resetTimer()">
+                  <i class="fas fa-redo"></i>
+                </button>
+              </div>
+
+              <button class="btn-f1 w-100 mt-4" id="registerVoltaBtn" disabled
+                onclick="CronometragemModule.registrarVolta()">
+                <i class="fas fa-flag-checkered me-2"></i>REGISTRAR VOLTA
+              </button>
+            </div>
+          </div>
+
+          <!-- 🔽 LINHA DE BAIXO -->
+          <div class="col-lg-6">
+            <!-- INSERÇÃO -->
+            <div class="f1-card">
+              <div class="f1-card-header">
+                <i class="fas fa-keyboard"></i>Inserção Manual
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Piloto</label>
+                <select id="manualPilot" class="form-select f1-input">
+                  <option value="">Selecione um piloto...</option>
+                </select>
+              </div>
+
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label">Minutos</label>
+                  <input type="number" id="manualMin" class="form-control f1-input">
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Segundos</label>
+                  <input type="number" id="manualSeg" class="form-control f1-input" step="0.001">
+                </div>
+              </div>
+
+              <button class="btn-f1 w-100" id="manualSaveBtn" onclick="CronometragemModule.registrarManual()">
+                <i class="fas fa-save me-2"></i>SALVAR TEMPO
+              </button>
+            </div>
+          </div>
+
+          <!-- HISTÓRICO -->
+          <div class="col-lg-6">
+            <div class="f1-card historico-card">
+              <div class="f1-card-header">
+                <i class="fas fa-history"></i>Histórico de Voltas
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Selecione o Piloto</label>
+                <select id="histPilot" class="form-select f1-input"
+                  onchange="CronometragemModule.carregarHistorico(this.value)">
+                  <option value="">Selecione um piloto...</option>
+                </select>
+              </div>
+
+              <div id="voltasStats"></div>
+
+              <div id="voltasHistorico" class="historico-scroll">
+                <div class="empty-state">
+                  <i class="fas fa-flag-checkered"></i>
+                  <p>Selecione um piloto</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================
+       PÁGINA: GRID
+  ============================== -->
+    <div id="grid" class="page">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <div class="section-title mb-0"><i class="fas fa-th-list text-red"></i>Grid de Largada</div>
+          <div class="d-flex gap-2">
+            <button class="btn-f1-outline" onclick="GridModule.carregar()"><i
+                class="fas fa-sync me-2"></i>Recarregar</button>
+            <button class="btn-f1" id="saveGridBtn" onclick="GridModule.salvar()"><i class="fas fa-save me-2"></i>SALVAR
+              GRID</button>
+          </div>
+        </div>
+
+        <div class="f1-card mb-3">
+          <div style="display:flex;align-items:center;gap:12px;color:var(--f1-silver);font-size:0.85rem">
+            <i class="fas fa-info-circle text-red"></i>
+            Arraste e solte os pilotos para reorganizar o grid de largada.
+          </div>
+        </div>
+
+        <div id="gridContainer">
+          <div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================
+       PÁGINA: RANKING
+  ============================== -->
+    <div id="ranking" class="page">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <div class="section-title mb-0"><i class="fas fa-trophy text-red"></i>Ranking & Resultados</div>
+          <button class="btn-f1-outline" onclick="RankingModule.carregar()"><i
+              class="fas fa-sync me-2"></i>Atualizar</button>
+        </div>
+
+        <!-- Destaques -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="f1-card" style="border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.03)">
+              <div class="d-flex align-items-center gap-3">
+                <div style="font-size:2.5rem">🥇</div>
+                <div>
+                  <div
+                    style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--f1-gold);margin-bottom:4px">
+                    Líder</div>
+                  <div style="font-weight:700;font-size:1.1rem" id="liderNome">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="f1-card" style="border-color:rgba(225,6,0,0.3)">
+              <div class="d-flex align-items-center gap-3">
+                <div style="font-size:2.5rem">⚡</div>
+                <div>
+                  <div
+                    style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--f1-red);margin-bottom:4px">
+                    Melhor Volta Global</div>
+                  <div style="font-family:var(--font-mono);font-size:1.3rem;color:var(--f1-red)" id="melhorVoltaGlobal">
+                    —</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="f1-card p-0" style="overflow:hidden">
+          <div style="overflow-x:auto">
+            <table class="f1-table">
+              <thead>
+                <tr>
+                  <th class="text-center">POS</th>
+                  <th>PILOTO</th>
+                  <th>EQUIPE</th>
+                  <th>MELHOR VOLTA</th>
+                  <th>MÉDIA</th>
+                  <th>VOLTAS</th>
+                </tr>
+              </thead>
+              <tbody id="rankingTable">
+                <tr>
+                  <td colspan="6">
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==============================
+       PÁGINA: TABELA (GRÁFICO DE VELOCIDADES)
+  ============================== -->
+    <div id="tabela" class="page">
+      <div class="container">
+        <div class="section-title mb-4">
+          <i class="fas fa-chart-line text-red"></i>Análise de Velocidades
+        </div>
+
+        <div class="row g-4">
+          <!-- Filtros -->
+          <div class="col-12">
+            <div class="f1-card">
+              <div class="f1-card-header">
+                <i class="fas fa-filter"></i>Filtros de Análise
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Piloto</label>
+                  <select id="tabelaPilot" class="form-select f1-input" onchange="TabelaModule.atualizarGrafico()">
+                    <option value="">Selecione um piloto...</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Pista</label>
+                  <select id="tabelaPista" class="form-select f1-input" onchange="TabelaModule.atualizarGrafico()">
+                    <option value="todas">Todas as Pistas</option>
+                    <option value="Circuito de Demonstração">Circuito de Demonstração</option>
+                    <option value="Interlagos">Interlagos</option>
+                    <option value="Monza">Monza</option>
+                    <option value="Silverstone">Silverstone</option>
+                    <option value="Spa-Francorchamps">Spa-Francorchamps</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Estatísticas Rápidas -->
+              <div class="row g-3 mt-3" id="tabelaStats">
+                <div class="col-md-3">
+                  <div class="timing-stat">
+                    <div class="timing-stat-val" id="statVelocidadeMax">—</div>
+                    <div class="timing-stat-lbl">Velocidade Máxima (km/h)</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="timing-stat">
+                    <div class="timing-stat-val" id="statVelocidadeMedia">—</div>
+                    <div class="timing-stat-lbl">Velocidade Média (km/h)</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="timing-stat">
+                    <div class="timing-stat-val" id="statTotalVoltas">—</div>
+                    <div class="timing-stat-lbl">Total de Voltas</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="timing-stat">
+                    <div class="timing-stat-val" id="statMelhorTempo">—</div>
+                    <div class="timing-stat-lbl">Melhor Tempo</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico -->
+          <div class="col-12">
+            <div class="f1-card">
+              <div class="f1-card-header">
+                <i class="fas fa-chart-line"></i>Gráfico de Velocidade por Volta
+              </div>
+
+              <div style="position: relative; height: 400px; width: 100%;">
+                <canvas id="velocidadeChart"></canvas>
+              </div>
+
+              <div class="d-flex justify-content-center gap-4 mt-3">
+                <div class="d-flex align-items-center gap-2">
+                  <div style="width:12px;height:12px;background:var(--f1-red);border-radius:2px;"></div>
+                  <span style="font-size:0.75rem;color:var(--f1-silver)">Velocidade (km/h)</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <div style="width:12px;height:12px;background:var(--f1-gold);border-radius:2px;"></div>
+                  <span style="font-size:0.75rem;color:var(--f1-silver)">Tempo (s)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela de Dados -->
+          <div class="col-12">
+            <div class="f1-card p-0" style="overflow:hidden">
+              <div style="overflow-x:auto">
+                <table class="f1-table">
+                  <thead>
+                    <tr>
+                      <th class="text-center">VOLTA</th>
+                      <th>TEMPO</th>
+                      <th>VELOCIDADE (km/h)</th>
+                      <th>PISTA</th>
+                      <th>DATA</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabelaDados">
+                    <tr>
+                      <td colspan="5">
+                        <div class="empty-state">
+                          <i class="fas fa-chart-line"></i>
+                          <p>Selecione um piloto para visualizar os dados</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ============================================
+    // API MODULE
+    // ============================================
+    const API = {
+      baseUrl: () => localStorage.getItem('f1_api_url') || 'http://localhost:3001',
+
+      async request(endpoint, options = {}) {
+        const url = `${this.baseUrl()}${endpoint}`;
+        const config = {
+          headers: { 'Content-Type': 'application/json' },
+          ...options
+        };
+        const response = await fetch(url, config);
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+          throw new Error(error.message || `HTTP ${response.status}`);
+        }
+        return response.json();
+      },
+
+      competidores: {
+        listar: () => API.request('/api/competidores'),
+        criar: (data) => API.request('/api/competidores', { method: 'POST', body: JSON.stringify(data) }),
+        atualizar: (id, data) => API.request(`/api/competidores/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+        deletar: (id) => API.request(`/api/competidores/${id}`, { method: 'DELETE' })
+      },
+
+      voltas: {
+        listar: (params = {}) => {
+          const query = new URLSearchParams(params).toString();
+          return API.request(`/api/voltas${query ? '?' + query : ''}`);
+        },
+        criar: (data) => API.request('/api/voltas', { method: 'POST', body: JSON.stringify(data) }),
+        deletar: (id) => API.request(`/api/voltas/${id}`, { method: 'DELETE' })
+      },
+
+      grid: {
+        get: () => API.request('/api/grid'),
+        salvar: (data) => API.request('/api/grid', { method: 'POST', body: JSON.stringify(data) })
+      },
+
+      ranking: {
+        get: () => API.request('/api/ranking')
+      }
+    };
+
+    // ============================================
+    // UTILITÁRIOS
+    // ============================================
+    function formatTime(seconds) {
+      if (!seconds && seconds !== 0) return '—';
+      const mins = Math.floor(seconds / 60);
+      const secs = (seconds % 60).toFixed(3);
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(6, '0')}`;
+    }
+
+    function animateCounter(element, target) {
+      if (!element) return;
+      const duration = 800;
+      const start = 0;
+      const startTime = performance.now();
+
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const current = Math.floor(progress * target);
+        element.textContent = current;
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          element.textContent = target;
+        }
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    // Toast System
+    const Toast = {
+      show(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `f1-toast ${type}`;
+
+        const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+        toast.innerHTML = `
+      <i class="fas ${icons[type] || icons.info}" style="color:${type === 'success' ? '#00ff88' : type === 'error' ? '#E10600' : '#4488ff'}"></i>
+      <span style="flex:1">${message}</span>
+    `;
+
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.animation = 'slideOutRight 0.3s ease forwards';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+    };
+
+    // Confirm Dialog
+    function showConfirm(title, message) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('confirmModal');
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        modal.classList.add('show');
+
+        document.getElementById('confirmYes').onclick = () => {
+          modal.classList.remove('show');
+          resolve(true);
+        };
+        document.getElementById('confirmNo').onclick = () => {
+          modal.classList.remove('show');
+          resolve(false);
+        };
+      });
+    }
+
+    // Navegação
+    function navigate(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+      const page = document.getElementById(pageId);
+      if (page) page.classList.add('active');
+
+      const navLink = document.querySelector(`[data-page="${pageId}"]`);
+      if (navLink) navLink.classList.add('active');
+
+      localStorage.setItem('f1_current_page', pageId);
+    }
+
+    // ============================================
+    // MÓDULO: COMPETIDORES
+    // ============================================
+    const CompetidoresModule = {
+      competidores: [],
+      editingId: null,
+
+      async carregar() {
+        try {
+          const res = await API.competidores.listar();
+          this.competidores = res.data;
+          this.renderizar();
+        } catch (err) {
+          Toast.show('Erro ao carregar pilotos', 'error');
+        }
+      },
+
+      renderizar(filtro = '') {
+        const container = document.getElementById('competidoresList');
+        const filtrados = this.competidores.filter(c =>
+          c.nome.toLowerCase().includes(filtro.toLowerCase()) ||
+          c.equipe.toLowerCase().includes(filtro.toLowerCase())
+        );
+
+        document.getElementById('totalPilotosCount').textContent = filtrados.length;
+
+        if (!filtrados.length) {
+          container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum piloto encontrado</p></div>';
+          return;
+        }
+
+        container.innerHTML = filtrados.map(c => `
+      <div class="pilot-card mb-2">
+        <div class="pilot-number">#${c.numero || '?'}</div>
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="pilot-name">${c.nome}</div>
+            <div class="pilot-team">${c.equipe}</div>
+            ${c.nacionalidade ? `<div style="font-size:0.7rem;color:var(--f1-silver);margin-top:2px">${c.nacionalidade}</div>` : ''}
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn-f1-outline btn-sm" onclick="CompetidoresModule.editPilot(${c.id})" title="Editar" style="padding:4px 10px">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-danger-f1 btn-sm" onclick="CompetidoresModule.remover(${c.id})" title="Remover" style="padding:4px 10px">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+      },
+
+      onSearch(value) {
+        this.renderizar(value);
+      },
+
+      showForm(pilot = null) {
+        document.getElementById('pilotModal').classList.add('show');
+        document.getElementById('pilotModalTitle').textContent = pilot ? 'EDITAR PILOTO' : 'NOVO PILOTO';
+        document.getElementById('pilotNome').value = pilot ? pilot.nome : '';
+        document.getElementById('pilotEquipe').value = pilot ? pilot.equipe : '';
+        document.getElementById('pilotNumero').value = pilot ? pilot.numero : '';
+        document.getElementById('pilotNac').value = pilot ? (pilot.nacionalidade || '') : '';
+        this.editingId = pilot ? pilot.id : null;
+      },
+
+      hideForm() {
+        document.getElementById('pilotModal').classList.remove('show');
+        this.editingId = null;
+      },
+
+      async salvar() {
+        const nome = document.getElementById('pilotNome').value.trim();
+        const equipe = document.getElementById('pilotEquipe').value.trim();
+        const numero = document.getElementById('pilotNumero').value;
+        const nacionalidade = document.getElementById('pilotNac').value.trim();
+
+        if (!nome || !equipe || !numero) {
+          Toast.show('Preencha todos os campos obrigatórios', 'error');
+          return;
+        }
+
+        const data = { nome, equipe, numero: parseInt(numero), nacionalidade };
+
+        try {
+          if (this.editingId) {
+            await API.competidores.atualizar(this.editingId, data);
+            Toast.show('Piloto atualizado com sucesso!', 'success');
+          } else {
+            await API.competidores.criar(data);
+            Toast.show('Piloto cadastrado com sucesso!', 'success');
+          }
+          this.hideForm();
+          await this.carregar();
+        } catch (err) {
+          Toast.show(err.message, 'error');
+        }
+      },
+
+      editPilot(id) {
+        const pilot = this.competidores.find(c => c.id === id);
+        if (pilot) this.showForm(pilot);
+      },
+
+      async remover(id) {
+        const confirmed = await showConfirm('Confirmar Remoção', 'Tem certeza que deseja remover este piloto?');
+        if (confirmed) {
+          try {
+            await API.competidores.deletar(id);
+            Toast.show('Piloto removido com sucesso!', 'success');
+            await this.carregar();
+          } catch (err) {
+            Toast.show(err.message, 'error');
+          }
+        }
+      }
+    };
+
+    // ============================================
+    // MÓDULO: CRONOMETRAGEM
+    // ============================================
+    const CronometragemModule = {
+      timerInterval: null,
+      timerRunning: false,
+      startTime: 0,
+      elapsedTime: 0,
+
+      async init() {
+        try {
+          const res = await API.competidores.listar();
+          const select1 = document.getElementById('timerPilot');
+          const select2 = document.getElementById('manualPilot');
+
+          const options = res.data.map(c => `<option value="${c.id}">${c.nome} - ${c.equipe}</option>`).join('');
+
+          if (select1) select1.innerHTML = '<option value="">Selecione um piloto...</option>' + options;
+          if (select2) select2.innerHTML = '<option value="">Selecione um piloto...</option>' + options;
+        } catch (err) {
+          console.warn('Erro ao carregar pilotos para cronômetro:', err.message);
+        }
+      },
+
+      toggleTimer() {
+        if (this.timerRunning) {
+          this.stopTimer();
+        } else {
+          this.startTimer();
+        }
+      },
+
+      startTimer() {
+        const pilotoId = document.getElementById('timerPilot').value;
+        if (!pilotoId) {
+          Toast.show('Selecione um piloto primeiro', 'error');
+          return;
+        }
+
+        this.timerRunning = true;
+        this.startTime = Date.now() - this.elapsedTime;
+
+        const btn = document.getElementById('timerBtn');
+        btn.innerHTML = '<i class="fas fa-pause me-2"></i>PAUSAR';
+        btn.style.background = '#ff4444';
+
+        document.getElementById('registerVoltaBtn').disabled = false;
+
+        this.timerInterval = setInterval(() => {
+          this.elapsedTime = Date.now() - this.startTime;
+          this.atualizarDisplay();
+        }, 10);
+      },
+
+      stopTimer() {
+        this.timerRunning = false;
+        clearInterval(this.timerInterval);
+
+        const btn = document.getElementById('timerBtn');
+        btn.innerHTML = '<i class="fas fa-play me-2"></i>INICIAR';
+        btn.style.background = '';
+      },
+
+      resetTimer() {
+        this.stopTimer();
+        this.elapsedTime = 0;
+        this.startTime = 0;
+        this.atualizarDisplay();
+        document.getElementById('registerVoltaBtn').disabled = true;
+      },
+
+      atualizarDisplay() {
+        const totalMs = this.elapsedTime;
+        const mins = Math.floor(totalMs / 60000);
+        const secs = Math.floor((totalMs % 60000) / 1000);
+        const ms = totalMs % 1000;
+
+        document.getElementById('timerDisplay').textContent =
+          `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
+      },
+
+      async registrarVolta() {
+        const pilotoId = document.getElementById('timerPilot').value;
+        if (!pilotoId) {
+          Toast.show('Selecione um piloto', 'error');
+          return;
+        }
+
+        const tempoSegundos = this.elapsedTime / 1000;
+        const tempoFormatado = formatTime(tempoSegundos);
+
+        try {
+          await API.voltas.criar({
+            piloto_id: parseInt(pilotoId),
+            tempo: tempoFormatado,
+            pista: 'Circuito de Demonstração'
+          });
+
+          Toast.show(`Volta registrada: ${tempoFormatado}`, 'success');
+          this.resetTimer();
+        } catch (err) {
+          Toast.show(err.message, 'error');
+        }
+      },
+
+      async registrarManual() {
+        const pilotoId = document.getElementById('manualPilot').value;
+        const mins = parseInt(document.getElementById('manualMin').value) || 0;
+        const segs = parseFloat(document.getElementById('manualSeg').value) || 0;
+
+        if (!pilotoId) {
+          Toast.show('Selecione um piloto', 'error');
+          return;
+        }
+
+        const tempoTotal = mins * 60 + segs;
+        const tempoFormatado = formatTime(tempoTotal);
+
+        try {
+          await API.voltas.criar({
+            piloto_id: parseInt(pilotoId),
+            tempo: tempoFormatado,
+            pista: 'Circuito de Demonstração'
+          });
+
+          Toast.show(`Tempo registrado: ${tempoFormatado}`, 'success');
+          document.getElementById('manualMin').value = '';
+          document.getElementById('manualSeg').value = '';
+        } catch (err) {
+          Toast.show(err.message, 'error');
+        }
+      },
+
+      async initHistorico() {
+        try {
+          const res = await API.competidores.listar();
+          const select = document.getElementById('histPilot');
+          if (select) {
+            select.innerHTML = '<option value="">Selecione um piloto...</option>' +
+              res.data.map(c => `<option value="${c.id}">${c.nome} - ${c.equipe}</option>`).join('');
+          }
+        } catch (err) {
+          console.warn('Erro ao carregar histórico:', err.message);
+        }
+      },
+
+      async carregarHistorico(pilotoId) {
+        if (!pilotoId) {
+          document.getElementById('voltasHistorico').innerHTML = '<div class="empty-state"><i class="fas fa-flag-checkered"></i><p>Selecione um piloto</p></div>';
+          document.getElementById('voltasStats').innerHTML = '';
+          return;
+        }
+
+        try {
+          const res = await API.voltas.listar({ piloto_id: pilotoId });
+          const voltas = res.data.sort((a, b) => {
+            const timeA = this.parseTime(a.tempo);
+            const timeB = this.parseTime(b.tempo);
+            return timeA - timeB;
+          });
+
+          if (!voltas.length) {
+            document.getElementById('voltasHistorico').innerHTML = '<div class="empty-state"><i class="fas fa-flag-checkered"></i><p>Nenhuma volta registrada</p></div>';
+            document.getElementById('voltasStats').innerHTML = '';
+            return;
+          }
+
+          const melhorTempo = this.parseTime(voltas[0].tempo);
+
+          document.getElementById('voltasStats').innerHTML = `
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="timing-stat">
+              <div class="timing-stat-val">${voltas.length}</div>
+              <div class="timing-stat-lbl">Voltas</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="timing-stat">
+              <div class="timing-stat-val">${formatTime(melhorTempo)}</div>
+              <div class="timing-stat-lbl">Melhor Volta</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+          document.getElementById('voltasHistorico').innerHTML = voltas.map((v, i) => `
+        <div class="volta-item">
+          <span>Volta ${i + 1}</span>
+          <span class="volta-time ${i === 0 ? 'volta-best' : ''}">${v.tempo}</span>
+          <span style="font-size:0.7rem;color:var(--f1-silver)">
+            ${v.created_at ? new Date(v.created_at).toLocaleDateString('pt-BR') : ''}
+          </span>
+        </div>
+      `).join('');
+
+        } catch (err) {
+          Toast.show('Erro ao carregar histórico', 'error');
+        }
+      },
+
+      parseTime(timeStr) {
+        if (!timeStr) return 0;
+        const parts = timeStr.split(':');
+        if (parts.length === 2) {
+          return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+        }
+        return parseFloat(timeStr) || 0;
+      }
+    };
+
+    // ============================================
+    // MÓDULO: GRID & RANKING
+    // ============================================
+    const GridModule = {
+      grid: [],
+
+      async carregar() {
+        try {
+          const [gridRes, compRes] = await Promise.all([
+            API.grid.get(),
+            API.competidores.listar()
+          ]);
+
+          this.grid = gridRes.data && gridRes.data.length ? gridRes.data : compRes.data.map((c, i) => ({
+            piloto_id: c.id,
+            nome: c.nome,
+            equipe: c.equipe,
+            posicao: i + 1
+          }));
+
+          this.renderizar();
+        } catch (err) {
+          Toast.show('Erro ao carregar grid', 'error');
+        }
+      },
+
+      renderizar() {
+        const container = document.getElementById('gridContainer');
+        if (!this.grid.length) {
+          container.innerHTML = '<div class="empty-state"><i class="fas fa-th-list"></i><p>Nenhum piloto no grid</p></div>';
+          return;
+        }
+
+        container.innerHTML = `
+      <div class="grid-track">
+        <div class="grid-indicator mb-3">
+          ${[1, 2, 3, 4, 5].map(i => `<div class="grid-light ${i <= 3 ? 'on' : ''}"></div>`).join('')}
+        </div>
+        ${this.grid.map((p, i) => `
+          <div class="grid-row" draggable="true" data-index="${i}">
+            <div class="grid-pos">P${i + 1}</div>
+            <div class="flex-grow-1">
+              <div style="font-weight:700">${p.nome}</div>
+              <div style="font-size:0.75rem;color:var(--f1-silver)">${p.equipe}</div>
+            </div>
+            <i class="fas fa-grip-vertical" style="color:var(--f1-silver)"></i>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+        this.setupDragAndDrop();
+      },
+
+      setupDragAndDrop() {
+        const rows = document.querySelectorAll('.grid-row');
+
+        rows.forEach(row => {
+          row.addEventListener('dragstart', (e) => {
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', e.target.dataset.index);
+          });
+
+          row.addEventListener('dragend', (e) => {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.grid-row').forEach(r => r.classList.remove('drag-over'));
+          });
+
+          row.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.target.closest('.grid-row').classList.add('drag-over');
+          });
+
+          row.addEventListener('dragleave', (e) => {
+            e.target.closest('.grid-row').classList.remove('drag-over');
+          });
+
+          row.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.target.closest('.grid-row').classList.remove('drag-over');
+
+            const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+            const toIndex = parseInt(e.target.closest('.grid-row').dataset.index);
+
+            if (fromIndex !== toIndex) {
+              const item = this.grid.splice(fromIndex, 1)[0];
+              this.grid.splice(toIndex, 0, item);
+              this.renderizar();
+            }
+          });
+        });
+      },
+
+      async salvar() {
+        try {
+          const data = this.grid.map((p, i) => ({
+            piloto_id: p.piloto_id,
+            posicao: i + 1
+          }));
+
+          await API.grid.salvar({ grid: data });
+          Toast.show('Grid salvo com sucesso!', 'success');
+        } catch (err) {
+          Toast.show(err.message, 'error');
+        }
+      }
+    };
+
+    const RankingModule = {
+      async carregar() {
+        try {
+          const res = await API.ranking.get();
+          const ranking = res.data;
+
+          if (ranking.length) {
+            document.getElementById('liderNome').textContent = ranking[0].nome;
+            document.getElementById('melhorVoltaGlobal').textContent = ranking[0].melhor_volta ? formatTime(ranking[0].melhor_volta) : '—';
+          }
+
+          const tbody = document.getElementById('rankingTable');
+
+          if (!ranking.length) {
+            tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-trophy"></i><p>Sem dados de ranking</p></div></td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = ranking.map((p, i) => {
+            let posClass = 'pos-n';
+            if (i === 0) posClass = 'pos-1';
+            else if (i === 1) posClass = 'pos-2';
+            else if (i === 2) posClass = 'pos-3';
+
+            return `
+          <tr>
+            <td class="text-center"><div class="pos-medal ${posClass}">${i + 1}</div></td>
+            <td><strong>${p.nome}</strong></td>
+            <td><span class="team-badge">${p.equipe}</span></td>
+            <td><span class="volta-time">${p.melhor_volta ? formatTime(p.melhor_volta) : '—'}</span></td>
+            <td>${p.media_voltas ? formatTime(p.media_voltas) : '—'}</td>
+            <td>${p.total_voltas || 0}</td>
+          </tr>
+        `;
+          }).join('');
+
+        } catch (err) {
+          Toast.show('Erro ao carregar ranking', 'error');
+        }
+      }
+    };
+
+    // ============================================
+    // MÓDULO: TABELA (GRÁFICO DE VELOCIDADES)
+    // ============================================
+    const TabelaModule = {
+      chart: null,
+      dadosCompletos: [],
+
+      async init() {
+        await this.carregarPilotos();
+        await this.atualizarGrafico();
+      },
+
+      async carregarPilotos() {
+        try {
+          const response = await API.competidores.listar();
+          const select = document.getElementById('tabelaPilot');
+
+          select.innerHTML = '<option value="">Selecione um piloto...</option>';
+
+          response.data.forEach(piloto => {
+            select.innerHTML += `<option value="${piloto.id}">${piloto.nome} - ${piloto.equipe}</option>`;
+          });
+        } catch (error) {
+          console.error('Erro ao carregar pilotos:', error);
+          Toast.show('Erro ao carregar pilotos', 'error');
+        }
+      },
+
+      async atualizarGrafico() {
+        const pilotoId = document.getElementById('tabelaPilot').value;
+        const pistaSelecionada = document.getElementById('tabelaPista').value;
+
+        if (!pilotoId) {
+          this.limparDados();
+          return;
+        }
+
+        try {
+          const response = await API.voltas.listar({ piloto_id: pilotoId });
+          let voltas = response.data;
+
+          if (pistaSelecionada && pistaSelecionada !== 'todas') {
+            voltas = voltas.filter(v => v.pista === pistaSelecionada);
+          }
+
+          voltas.sort((a, b) => new Date(a.data_hora || a.created_at) - new Date(b.data_hora || b.created_at));
+
+          this.dadosCompletos = voltas.map((volta, index) => {
+            const tempoSegundos = this.converterTempoParaSegundos(volta.tempo);
+            const velocidade = this.calcularVelocidade(tempoSegundos);
+
+            return {
+              volta: index + 1,
+              tempo: volta.tempo,
+              tempoSegundos: tempoSegundos,
+              velocidade: velocidade,
+              pista: volta.pista || 'Circuito de Demonstração',
+              data: volta.data_hora || volta.created_at
+            };
+          });
+
+          this.renderizarGrafico();
+          this.atualizarEstatisticas();
+          this.atualizarTabela();
+
+        } catch (error) {
+          console.error('Erro ao carregar dados:', error);
+          Toast.show('Erro ao carregar dados do gráfico', 'error');
+        }
+      },
+
+      converterTempoParaSegundos(tempo) {
+        if (!tempo) return 0;
+
+        const partes = tempo.split(':');
+        if (partes.length === 2) {
+          const minutos = parseFloat(partes[0]);
+          const segundos = parseFloat(partes[1]);
+          return minutos * 60 + segundos;
+        }
+
+        return parseFloat(tempo) || 0;
+      },
+
+      calcularVelocidade(tempoSegundos) {
+        if (!tempoSegundos || tempoSegundos <= 0) return 0;
+
+        const comprimentoPista = 5; // km
+        const velocidadeMedia = (comprimentoPista / tempoSegundos) * 3600; // km/h
+        const variacao = (Math.random() * 20 - 10);
+        const velocidadeFinal = velocidadeMedia + variacao;
+
+        return Math.round(velocidadeFinal * 10) / 10;
+      },
+
+      renderizarGrafico() {
+        const ctx = document.getElementById('velocidadeChart').getContext('2d');
+
+        if (this.chart) {
+          this.chart.destroy();
+        }
+
+        if (this.dadosCompletos.length === 0) {
+          return;
+        }
+
+        const labels = this.dadosCompletos.map(d => `Volta ${d.volta}`);
+        const velocidades = this.dadosCompletos.map(d => d.velocidade);
+        const tempos = this.dadosCompletos.map(d => d.tempoSegundos);
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(225, 6, 0, 0.8)');
+        gradient.addColorStop(1, 'rgba(225, 6, 0, 0.1)');
+
+        this.chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Velocidade (km/h)',
+                data: velocidades,
+                borderColor: '#E10600',
+                backgroundColor: gradient,
+                borderWidth: 3,
+                pointBackgroundColor: '#E10600',
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                tension: 0.4,
+                fill: true,
+                yAxisID: 'y'
+              },
+              {
+                label: 'Tempo (s)',
+                data: tempos,
+                borderColor: '#FFD700',
+                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                pointBackgroundColor: '#FFD700',
+                pointBorderColor: '#000000',
+                pointBorderWidth: 1,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                tension: 0.4,
+                fill: false,
+                yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: 'index',
+              intersect: false,
+            },
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                  color: '#b0b0c0',
+                  font: {
+                    family: "'Exo 2', sans-serif",
+                    size: 12
+                  },
+                  usePointStyle: true,
+                  padding: 20
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(30, 30, 46, 0.95)',
+                titleColor: '#E10600',
+                bodyColor: '#FFFFFF',
+                borderColor: '#E10600',
+                borderWidth: 1,
+                padding: 12,
+                displayColors: true,
+                callbacks: {
+                  label: function (context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                      label += ': ';
+                    }
+                    if (context.datasetIndex === 0) {
+                      label += context.parsed.y.toFixed(1) + ' km/h';
+                    } else {
+                      label += context.parsed.y.toFixed(3) + ' s';
+                    }
+                    return label;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: {
+                  color: 'rgba(43, 43, 61, 0.3)',
+                  drawBorder: false
+                },
+                ticks: {
+                  color: '#b0b0c0',
+                  font: {
+                    family: "'Exo 2', sans-serif",
+                    size: 11
+                  }
+                }
+              },
+              y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                  display: true,
+                  text: 'Velocidade (km/h)',
+                  color: '#E10600',
+                  font: {
+                    family: "'Exo 2', sans-serif",
+                    size: 12,
+                    weight: 'bold'
+                  }
+                },
+                grid: {
+                  color: 'rgba(225, 6, 0, 0.1)',
+                  drawBorder: false
+                },
+                ticks: {
+                  color: '#E10600',
+                  font: {
+                    family: "'Share Tech Mono', monospace",
+                    size: 11
+                  },
+                  callback: function (value) {
+                    return value.toFixed(1) + ' km/h';
+                  }
+                }
+              },
+              y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                  display: true,
+                  text: 'Tempo (s)',
+                  color: '#FFD700',
+                  font: {
+                    family: "'Exo 2', sans-serif",
+                    size: 12,
+                    weight: 'bold'
+                  }
+                },
+                grid: {
+                  drawOnChartArea: false,
+                },
+                ticks: {
+                  color: '#FFD700',
+                  font: {
+                    family: "'Share Tech Mono', monospace",
+                    size: 11
+                  },
+                  callback: function (value) {
+                    return value.toFixed(3) + ' s';
+                  }
+                }
+              }
+            }
+          }
+        });
+      },
+
+      atualizarEstatisticas() {
+        if (this.dadosCompletos.length === 0) {
+          document.getElementById('statVelocidadeMax').textContent = '—';
+          document.getElementById('statVelocidadeMedia').textContent = '—';
+          document.getElementById('statTotalVoltas').textContent = '—';
+          document.getElementById('statMelhorTempo').textContent = '—';
+          return;
+        }
+
+        const velocidades = this.dadosCompletos.map(d => d.velocidade);
+        const tempos = this.dadosCompletos.map(d => d.tempoSegundos);
+
+        const velocidadeMax = Math.max(...velocidades);
+        const velocidadeMedia = velocidades.reduce((a, b) => a + b, 0) / velocidades.length;
+        const totalVoltas = this.dadosCompletos.length;
+        const melhorTempo = Math.min(...tempos);
+
+        document.getElementById('statVelocidadeMax').textContent = velocidadeMax.toFixed(1) + ' km/h';
+        document.getElementById('statVelocidadeMedia').textContent = velocidadeMedia.toFixed(1) + ' km/h';
+        document.getElementById('statTotalVoltas').textContent = totalVoltas;
+        document.getElementById('statMelhorTempo').textContent = formatTime(melhorTempo);
+      },
+
+      atualizarTabela() {
+        const tbody = document.getElementById('tabelaDados');
+
+        if (this.dadosCompletos.length === 0) {
+          tbody.innerHTML = `
+        <tr>
+          <td colspan="5">
+            <div class="empty-state">
+              <i class="fas fa-chart-line"></i>
+              <p>Nenhum dado disponível para este piloto</p>
+            </div>
+          </td>
+        </tr>`;
+          return;
+        }
+
+        tbody.innerHTML = this.dadosCompletos.map(d => `
+      <tr>
+        <td class="text-center">
+          <span class="badge" style="background:rgba(225,6,0,0.2);color:var(--f1-red);font-family:var(--font-mono)">
+            #${d.volta}
+          </span>
+        </td>
+        <td>
+          <span class="volta-time">${d.tempo}</span>
+        </td>
+        <td>
+          <span style="font-family:var(--font-mono);color:var(--f1-gold)">${d.velocidade.toFixed(1)} km/h</span>
+        </td>
+        <td>
+          <span class="team-badge">${d.pista}</span>
+        </td>
+        <td>
+          <span style="color:var(--f1-silver);font-size:0.85rem">
+            ${new Date(d.data).toLocaleDateString('pt-BR')}
+          </span>
+        </td>
+      </tr>
+    `).join('');
+      },
+
+      limparDados() {
+        if (this.chart) {
+          this.chart.destroy();
+          this.chart = null;
+        }
+
+        this.dadosCompletos = [];
+
+        document.getElementById('statVelocidadeMax').textContent = '—';
+        document.getElementById('statVelocidadeMedia').textContent = '—';
+        document.getElementById('statTotalVoltas').textContent = '—';
+        document.getElementById('statMelhorTempo').textContent = '—';
+
+        document.getElementById('tabelaDados').innerHTML = `
+      <tr>
+        <td colspan="5">
+          <div class="empty-state">
+            <i class="fas fa-chart-line"></i>
+            <p>Selecione um piloto para visualizar os dados</p>
+          </div>
+        </td>
+      </tr>`;
+      }
+    };
+
+    // ============================================
+    // EFEITOS VISUAIS
+    // ============================================
+    function initCursor() {
+      const cursor = document.querySelector('.cursor');
+      const trail = document.querySelector('.cursor-trail');
+
+      document.addEventListener('mousemove', (e) => {
+        if (cursor) {
+          cursor.style.left = e.clientX + 'px';
+          cursor.style.top = e.clientY + 'px';
+        }
+        if (trail) {
+          setTimeout(() => {
+            trail.style.left = e.clientX + 'px';
+            trail.style.top = e.clientY + 'px';
+          }, 50);
+        }
+      });
+    }
+
+    function initParticles() {
+      const canvas = document.getElementById('particles-canvas');
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      for (let i = 0; i < 50; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 1,
+          speedX: (Math.random() - 0.5) * 0.5,
+          speedY: (Math.random() - 0.5) * 0.5,
+          opacity: Math.random() * 0.5 + 0.1
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.x += p.speedX;
+          p.y += p.speedY;
+
+          if (p.x < 0) p.x = canvas.width;
+          if (p.x > canvas.width) p.x = 0;
+          if (p.y < 0) p.y = canvas.height;
+          if (p.y > canvas.height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(225, 6, 0, ${p.opacity})`;
+          ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    }
+
+    function initSpeedLines() {
+      const container = document.querySelector('.speed-lines');
+      if (!container) return;
+
+      setInterval(() => {
+        const line = document.createElement('div');
+        line.className = 'speed-line';
+        line.style.top = Math.random() * 100 + '%';
+        line.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        line.style.width = (Math.random() * 300 + 100) + 'px';
+
+        container.appendChild(line);
+
+        setTimeout(() => {
+          line.remove();
+        }, 3000);
+      }, 200);
+    }
+
+    function initCountdown() {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + 7);
+      targetDate.setHours(14, 0, 0, 0);
+
+      function update() {
+        const now = new Date();
+        const diff = targetDate - now;
+
+        if (diff <= 0) return;
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+        document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+        document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+      }
+
+      update();
+      setInterval(update, 1000);
+    }
+
+    // ============================================
+    // INICIALIZAÇÃO PRINCIPAL
+    // ============================================
+    async function navigateTo(pageId) {
+      navigate(pageId);
+      switch (pageId) {
+        case 'competidores':
+          await CompetidoresModule.carregar();
+          break;
+        case 'cronometragem':
+          await CronometragemModule.init();
+          await CronometragemModule.initHistorico();
+          break;
+        case 'grid':
+          await GridModule.carregar();
+          break;
+        case 'ranking':
+          await RankingModule.carregar();
+          break;
+        case 'tabela':
+          await TabelaModule.init();
+          break;
+        case 'home':
+          await carregarHome();
+          break;
+      }
+    }
+
+    async function carregarHome() {
+      try {
+        const [compRes, voltasRes, rankingRes] = await Promise.all([
+          API.competidores.listar(),
+          API.voltas.listar(),
+          API.ranking.get()
+        ]);
+
+        const stats = document.getElementById('statPilotos');
+        if (stats) animateCounter(stats, compRes.data.length);
+
+        const voltasStat = document.getElementById('statVoltas');
+        if (voltasStat) animateCounter(voltasStat, voltasRes.data.length);
+
+        const equipes = new Set(compRes.data.map(c => c.equipe));
+        const equipesStat = document.getElementById('statEquipes');
+        if (equipesStat) animateCounter(equipesStat, equipes.size);
+
+        if (rankingRes.data.length && rankingRes.data[0].melhor_volta) {
+          const el = document.getElementById('statMelhorVolta');
+          if (el) el.textContent = formatTime(rankingRes.data[0].melhor_volta);
+        }
+
+        const top3 = rankingRes.data.slice(0, 3);
+        const top3El = document.getElementById('homeTop3');
+        if (!top3.length) {
+          top3El.innerHTML = '<div class="empty-state" style="padding:1rem"><i class="fas fa-trophy"></i><p>Sem dados ainda</p></div>';
+        } else {
+          const medals = ['🥇', '🥈', '🥉'];
+          const medalColors = ['var(--f1-gold)', 'var(--f1-silver-medal)', 'var(--f1-bronze)'];
+          top3El.innerHTML = top3.map((p, i) => `
         <div class="d-flex align-items-center gap-3 py-2 ${i < 2 ? 'border-bottom' : ''}" style="border-color:var(--f1-border)!important">
           <span style="font-size:1.6rem;width:36px;text-align:center">${medals[i]}</span>
           <div class="flex-grow-1">
@@ -542,48 +2945,45 @@ async function carregarHome() {
           </div>
         </div>
       `).join('');
+        }
+
+      } catch (err) {
+        console.warn('Home load error:', err.message);
+      }
     }
 
-  } catch (err) {
-    console.warn('Home load error:', err.message);
-  }
-}
+    function updateApiUrl() {
+      const url = document.getElementById('apiUrlInput').value.trim();
+      if (url) {
+        localStorage.setItem('f1_api_url', url);
+        window.location.reload();
+      }
+    }
 
-function updateApiUrl() {
-  const url = document.getElementById('apiUrlInput').value.trim();
-  if (url) {
-    localStorage.setItem('f1_api_url', url);
-    window.location.reload();
-  }
-}
+    // Inicialização ao carregar
+    window.addEventListener('DOMContentLoaded', async () => {
+      initCursor();
+      initParticles();
+      initSpeedLines();
+      initCountdown();
 
-// Inicialização ao carregar
-window.addEventListener('DOMContentLoaded', async () => {
-  // Cursores e efeitos
-  initCursor();
-  initParticles();
-  initSpeedLines();
-  initCountdown();
+      const savedUrl = localStorage.getItem('f1_api_url');
+      const input = document.getElementById('apiUrlInput');
+      if (savedUrl && input) input.value = savedUrl;
 
-  // URL da API
-  const savedUrl = localStorage.getItem('f1_api_url');
-  const input = document.getElementById('apiUrlInput');
-  if (savedUrl && input) input.value = savedUrl;
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+      }, 1800);
 
-  // Oculta loader após animação
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('hidden');
-  }, 1800);
-
-  // Página inicial
-  const savedPage = localStorage.getItem('f1_current_page') || 'home';
-  setTimeout(async () => {
-    navigate(savedPage);
-    if (savedPage !== 'home') navigate('home');
-    await carregarHome();
-  }, 1900);
-});
-</script>
+      const savedPage = localStorage.getItem('f1_current_page') || 'home';
+      setTimeout(async () => {
+        navigate(savedPage);
+        if (savedPage !== 'home') navigate('home');
+        await carregarHome();
+      }, 1900);
+    });
+  </script>
 
 </body>
+
 </html>
